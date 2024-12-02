@@ -7,16 +7,19 @@ from entraid.identity_provider import EntraIDIdentityProvider
 
 
 class TokenAuthConfig:
-    def __init__(self):
-        self._expiration_refresh_ratio = 1.0
+    """
+    Configuration for token authentication.
+
+    Requires :class:`EntraIDIdentityProvider`. It's recommended to use an additional factory methods.
+    See :class:`EntraIDIdentityProvider` for more information.
+    """
+    def __init__(self, idp: EntraIDIdentityProvider):
+        self._expiration_refresh_ratio = 0.8
         self._lower_refresh_bound_millis = 0
         self._token_request_execution_timeout_in_ms = 100
         self._max_attempts = 3
         self._delay_in_ms = 10
-        self._identity_provider_config = {
-            "scopes": ["https://redis.azure.com/.default"],
-            "config": {},
-        }
+        self._idp = idp
 
     def get_token_manager_config(self) -> TokenManagerConfig:
         return TokenManagerConfig(
@@ -29,13 +32,13 @@ class TokenAuthConfig:
             )
         )
 
-    def get_identity_provider_config(self) -> dict:
-        return self._identity_provider_config
+    def get_identity_provider(self) -> EntraIDIdentityProvider:
+        return self._idp
 
     def expiration_refresh_ratio(self, value: float) -> Self:
         """
         Percentage value of total token TTL when refresh should be triggered.
-        Default: 1.0
+        Default: 0.8
 
         :param value: float
         :return: Self
@@ -87,37 +90,17 @@ class TokenAuthConfig:
         self._delay_in_ms = value
         return self
 
-    def identity_provider_config(self, value: dict) -> Self:
-        """
-        Identity provider specific configuration as dictionary.
-
-        :param value: "Scopes" key is required. "Config" key represents the actual configuration.
-        :return: Self
-        """
-
-        if value.get("scopes", None) is None:
-            raise ValueError("Scope key is required")
-
-        self._identity_provider_config = value
-        return self
-
 
 class EntraIdCredentialsProvider(StreamingCredentialProvider):
     def __init__(self, config: TokenAuthConfig):
         self._token_mgr = TokenManager(
-            EntraIDIdentityProvider(
-                config.get_identity_provider_config().get('scopes'),
-                **config.get_identity_provider_config().get('config')
-            ),
+            config.get_identity_provider(),
             config.get_token_manager_config()
         )
         self._listener = CredentialsListener()
         self._is_streaming = False
 
     def get_credentials(self) -> Union[Tuple[str], Tuple[str, str]]:
-        if self._listener is None:
-            raise Exception('To obtain the credentials the listener must be set first')
-
         init_token = self._token_mgr.acquire_token()
 
         if self._is_streaming is False:
