@@ -54,7 +54,14 @@ class EntraIDIdentityProvider(IdentityProviderInterface):
         if isinstance(self._app, ManagedIdentityClient):
             return self._get_token(self._app.acquire_token_for_client, resource=self._resource)
 
-        return self._get_token(self._app.acquire_token_for_client, scopes=self._scopes, **self._kwargs)
+        if force_refresh:
+            self._app.remove_tokens_for_client()
+
+        return self._get_token(
+                self._app.acquire_token_for_client,
+                scopes=self._scopes,
+                **self._kwargs
+        )
 
     def _get_token(self, callback: Callable, **kwargs) -> JWToken:
         try:
