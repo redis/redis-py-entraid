@@ -42,7 +42,6 @@ class EntraIDIdentityProvider(IdentityProviderInterface):
         self._scopes = scopes
         self._resource = resource
         self._kwargs = kwargs
-        self._is_initialized = False
 
     def request_token(self, force_refresh=False) -> TokenInterface:
         """
