@@ -1,4 +1,4 @@
-from typing import Self, Union, Tuple, Callable, Any
+from typing import Self, Union, Tuple, Callable, Any, Awaitable
 
 from redis.credentials import StreamingCredentialProvider
 from redisauth.token_manager import TokenManagerConfig, RetryPolicy, TokenManager, CredentialsListener
@@ -112,12 +112,20 @@ class EntraIdCredentialsProvider(StreamingCredentialProvider):
         return init_token.get_token().try_get('oid'), init_token.get_token().get_value()
 
     async def get_credentials_async(self) -> Union[Tuple[str], Tuple[str, str]]:
-        return self.get_credentials()
+        init_token = self._token_mgr.acquire_token()
 
-    def on_next(self, callback: Callable[[Any], None]):
+        if self._is_streaming is False:
+            await self._token_mgr.start_async(
+                self._listener
+            )
+            self._is_streaming = True
+
+        return init_token.get_token().try_get('oid'), init_token.get_token().get_value()
+
+    def on_next(self, callback: Union[Callable[[Any], None], Awaitable]):
         self._listener.on_next = callback
 
-    def on_error(self, callback: Callable[[Exception], None]):
+    def on_error(self, callback: Union[Callable[[Exception], None], Awaitable]):
         self._listener.on_error = callback
 
     def is_streaming(self) -> bool:
