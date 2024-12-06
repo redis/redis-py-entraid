@@ -92,20 +92,29 @@ class TokenAuthConfig:
 
 
 class EntraIdCredentialsProvider(StreamingCredentialProvider):
-    def __init__(self, config: TokenAuthConfig):
+    def __init__(
+            self,
+            config: TokenAuthConfig,
+            initial_delay_in_ms: float = 0,
+            block_for_initial: bool = False,
+    ):
         self._token_mgr = TokenManager(
             config.get_identity_provider(),
             config.get_token_manager_config()
         )
         self._listener = CredentialsListener()
         self._is_streaming = False
+        self._initial_delay_in_ms = initial_delay_in_ms
+        self._block_for_initial = block_for_initial
 
     def get_credentials(self) -> Union[Tuple[str], Tuple[str, str]]:
         init_token = self._token_mgr.acquire_token()
 
         if self._is_streaming is False:
             self._token_mgr.start(
-                self._listener
+                self._listener,
+                initial_delay_in_ms=self._initial_delay_in_ms,
+                block_for_initial=self._block_for_initial
             )
             self._is_streaming = True
 
@@ -116,7 +125,9 @@ class EntraIdCredentialsProvider(StreamingCredentialProvider):
 
         if self._is_streaming is False:
             await self._token_mgr.start_async(
-                self._listener
+                self._listener,
+                initial_delay_in_ms=self._initial_delay_in_ms,
+                block_for_initial=self._block_for_initial
             )
             self._is_streaming = True
 
