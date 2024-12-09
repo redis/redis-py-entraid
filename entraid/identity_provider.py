@@ -97,7 +97,7 @@ def create_provider_from_managed_identity(
             ManagedIdentityIdType: id_value
         }
 
-        managed_identity = identity_type.value(**kwargs)
+        managed_identity = identity_type.value()(**kwargs)
     else:
         managed_identity = identity_type.value()
 
