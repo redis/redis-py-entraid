@@ -120,10 +120,6 @@ class EntraIdCredentialsProvider(StreamingCredentialProvider):
 
         return init_token.get_token().try_get('oid'), init_token.get_token().get_value()
 
-    async def get_credentials_async(self) -> Union[Tuple[str], Tuple[str, str]]:
-        init_token = self._token_mgr.acquire_token()
-        return init_token.get_token().try_get('oid'), init_token.get_token().get_value()
-
     def on_next(self, callback: Union[Callable[[Any], None], Awaitable]):
         self._listener.on_next = callback
 
