@@ -94,10 +94,10 @@ def create_provider_from_managed_identity(
             raise ValueError("Id_type and id_value are required for User Assigned identity auth")
 
         kwargs = {
-            ManagedIdentityIdType: id_value
+            id_type.value: id_value
         }
 
-        managed_identity = identity_type.value()(**kwargs)
+        managed_identity = identity_type.value(**kwargs)
     else:
         managed_identity = identity_type.value()
 
