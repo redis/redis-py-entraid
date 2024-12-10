@@ -114,7 +114,7 @@ class EntraIdCredentialsProvider(StreamingCredentialProvider):
             self._token_mgr.start(
                 self._listener,
                 initial_delay_in_ms=self._initial_delay_in_ms,
-                block_for_initial=self._block_for_initial
+                block_for_initial=True
             )
             self._is_streaming = True
 
