@@ -98,6 +98,11 @@ class EntraIdCredentialsProvider(StreamingCredentialProvider):
             initial_delay_in_ms: float = 0,
             block_for_initial: bool = False,
     ):
+        """
+        :param config:
+        :param initial_delay_in_ms: Initial delay before run background refresh (valid for async only)
+        :param block_for_initial: Block execution until initial token will be acquired (valid for async only)
+        """
         self._token_mgr = TokenManager(
             config.get_identity_provider(),
             config.get_token_manager_config()
@@ -113,21 +118,7 @@ class EntraIdCredentialsProvider(StreamingCredentialProvider):
         if self._is_streaming is False:
             self._token_mgr.start(
                 self._listener,
-                initial_delay_in_ms=self._initial_delay_in_ms,
                 block_for_initial=True
-            )
-            self._is_streaming = True
-
-        return init_token.get_token().try_get('oid'), init_token.get_token().get_value()
-
-    async def get_credentials_async(self) -> Union[Tuple[str], Tuple[str, str]]:
-        init_token = self._token_mgr.acquire_token()
-
-        if self._is_streaming is False:
-            await self._token_mgr.start_async(
-                self._listener,
-                initial_delay_in_ms=self._initial_delay_in_ms,
-                block_for_initial=self._block_for_initial
             )
             self._is_streaming = True
 
