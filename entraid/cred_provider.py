@@ -125,7 +125,7 @@ class EntraIdCredentialsProvider(StreamingCredentialProvider):
         return init_token.get_token().try_get('oid'), init_token.get_token().get_value()
 
     async def get_credentials_async(self) -> Union[Tuple[str], Tuple[str, str]]:
-        init_token = self._token_mgr.acquire_token()
+        init_token = await self._token_mgr.acquire_token_async()
 
         if self._is_streaming is False:
             await self._token_mgr.start_async(
