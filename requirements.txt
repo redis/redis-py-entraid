@@ -1,5 +1,4 @@
 PyJWT~=2.9.0
 msal~=1.31.0
 redis @ git+https://github.com/redis/redis-py.git/@vv-tba-support
-redispyauth-prototype @ git+https://github.com/redis-developer/redispy-entraid-prototype.git/@tba
 requests~=2.32.3
