@@ -10,7 +10,6 @@ setup(
         exclude=["tests", ".github"]
     ),
     install_requires=[
-        "redispyauth-prototype @ git+https://github.com/redis-developer/redispy-entraid-prototype.git/@tba",
         "redis @ git+https://github.com/redis/redis-py.git/@vv-tba-support",
         "PyJWT~=2.9.0",
         "msal~=1.31.0"
