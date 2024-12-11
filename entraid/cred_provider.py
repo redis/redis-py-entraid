@@ -1,7 +1,7 @@
 from typing import Self, Union, Tuple, Callable, Any, Awaitable
 
 from redis.credentials import StreamingCredentialProvider
-from redisauth.token_manager import TokenManagerConfig, RetryPolicy, TokenManager, CredentialsListener
+from redis.auth.token_manager import TokenManagerConfig, RetryPolicy, TokenManager, CredentialsListener
 
 from entraid.identity_provider import EntraIDIdentityProvider
 

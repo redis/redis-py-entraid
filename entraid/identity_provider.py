@@ -8,9 +8,9 @@ from msal import (
     UserAssignedManagedIdentity,
     SystemAssignedManagedIdentity
 )
-from redisauth.err import RequestTokenErr
-from redisauth.idp import IdentityProviderInterface
-from redisauth.token import TokenInterface, JWToken
+from redis.auth.err import RequestTokenErr
+from redis.auth.idp import IdentityProviderInterface
+from redis.auth.token import TokenInterface, JWToken
 
 
 class ManagedIdentityType(Enum):
