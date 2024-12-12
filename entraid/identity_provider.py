@@ -33,7 +33,7 @@ class EntraIDIdentityProvider(IdentityProviderInterface):
     """
     def __init__(
             self,
-            app: Union[ManagedIdentityClient | ConfidentialClientApplication],
+            app: Union[ManagedIdentityClient, ConfidentialClientApplication],
             scopes : list = [],
             resource: str = '',
             **kwargs
