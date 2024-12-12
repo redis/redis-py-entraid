@@ -13,12 +13,18 @@ class TokenAuthConfig:
     Requires :class:`EntraIDIdentityProvider`. It's recommended to use an additional factory methods.
     See :class:`EntraIDIdentityProvider` for more information.
     """
+    DEFAULT_EXPIRATION_REFRESH_RATIO = 0.8
+    DEFAULT_LOWER_REFRESH_BOUND_MILLIS = 0
+    DEFAULT_TOKEN_REQUEST_EXECUTION_TIMEOUT_IN_MS = 100
+    DEFAULT_MAX_ATTEMPTS = 3
+    DEFAULT_DELAY_IN_MS = 3
+
     def __init__(self, idp: EntraIDIdentityProvider):
-        self._expiration_refresh_ratio = 0.8
-        self._lower_refresh_bound_millis = 0
-        self._token_request_execution_timeout_in_ms = 100
-        self._max_attempts = 3
-        self._delay_in_ms = 10
+        self._expiration_refresh_ratio = self.DEFAULT_EXPIRATION_REFRESH_RATIO
+        self._lower_refresh_bound_millis = self.DEFAULT_LOWER_REFRESH_BOUND_MILLIS
+        self._token_request_execution_timeout_in_ms = self.DEFAULT_TOKEN_REQUEST_EXECUTION_TIMEOUT_IN_MS
+        self._max_attempts = self.DEFAULT_MAX_ATTEMPTS
+        self._delay_in_ms = self.DEFAULT_DELAY_IN_MS
         self._idp = idp
 
     def get_token_manager_config(self) -> TokenManagerConfig:
