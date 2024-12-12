@@ -1,4 +1,4 @@
-from typing import Self, Union, Tuple, Callable, Any, Awaitable
+from typing import Union, Tuple, Callable, Any, Awaitable
 
 from redis.credentials import StreamingCredentialProvider
 from redis.auth.token_manager import TokenManagerConfig, RetryPolicy, TokenManager, CredentialsListener
@@ -41,7 +41,7 @@ class TokenAuthConfig:
     def get_identity_provider(self) -> EntraIDIdentityProvider:
         return self._idp
 
-    def expiration_refresh_ratio(self, value: float) -> Self:
+    def expiration_refresh_ratio(self, value: float):
         """
         Percentage value of total token TTL when refresh should be triggered.
         Default: 0.8
@@ -52,7 +52,7 @@ class TokenAuthConfig:
         self._expiration_refresh_ratio = value
         return self
 
-    def lower_refresh_bound_millis(self, value: int) -> Self:
+    def lower_refresh_bound_millis(self, value: int):
         """
         Represents the minimum time in milliseconds before token expiration to trigger a refresh, in milliseconds.
         Default: 0
@@ -63,7 +63,7 @@ class TokenAuthConfig:
         self._lower_refresh_bound_millis = value
         return self
 
-    def token_request_execution_timeout_in_ms(self, value: int) -> Self:
+    def token_request_execution_timeout_in_ms(self, value: int):
         """
         Represents the maximum time in milliseconds to wait for a token request to complete.
         Default: 100
@@ -74,7 +74,7 @@ class TokenAuthConfig:
         self._token_request_execution_timeout_in_ms = value
         return self
 
-    def max_attempts(self, value: int) -> Self:
+    def max_attempts(self, value: int):
         """
         Represents the maximum number of attempts to trigger a refresh in case of error.
         Default: 3
@@ -85,7 +85,7 @@ class TokenAuthConfig:
         self._max_attempts = value
         return self
 
-    def delay_in_ms(self, value: int) -> Self:
+    def delay_in_ms(self, value: int):
         """
         Represents the delay between retries.
         Default: 10
