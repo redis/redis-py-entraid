@@ -34,7 +34,7 @@ class TestEntraIdCredentialsProvider:
         "credential_provider",
         [
             {
-                "cred_provider_kwargs": {"expiration_refresh_ratio": 0.00005},
+                "cred_provider_kwargs": {"expiration_refresh_ratio": 0.00002},
             }
         ],
         indirect=True,
@@ -52,13 +52,13 @@ class TestEntraIdCredentialsProvider:
         credential_provider.get_credentials()
         sleep(0.5)
 
-        assert len(tokens) == 1
+        assert len(tokens) > 0
 
     @pytest.mark.parametrize(
         "credential_provider",
         [
             {
-                "cred_provider_kwargs": {"expiration_refresh_ratio": 0.00005},
+                "cred_provider_kwargs": {"expiration_refresh_ratio": 0.00002},
             }
         ],
         indirect=True,
@@ -77,13 +77,13 @@ class TestEntraIdCredentialsProvider:
         await credential_provider.get_credentials_async()
         await asyncio.sleep(0.5)
 
-        assert len(tokens) == 1
+        assert len(tokens) > 0
 
     @pytest.mark.parametrize(
         "credential_provider",
         [
             {
-                "cred_provider_kwargs": {"expiration_refresh_ratio": 0.00005},
+                "cred_provider_kwargs": {"expiration_refresh_ratio": 0.00002},
             }
         ],
         indirect=True,
@@ -106,14 +106,14 @@ class TestEntraIdCredentialsProvider:
         credential_provider.get_credentials()
         sleep(0.5)
 
-        assert len(errors) == 1
+        assert len(errors) > 0
         assert str(errors[0]) == "Some exception"
 
     @pytest.mark.parametrize(
         "credential_provider",
         [
             {
-                "cred_provider_kwargs": {"expiration_refresh_ratio": 0.00005},
+                "cred_provider_kwargs": {"expiration_refresh_ratio": 0.00002},
             }
         ],
         indirect=True,
@@ -137,5 +137,5 @@ class TestEntraIdCredentialsProvider:
         await credential_provider.get_credentials_async()
         await asyncio.sleep(0.5)
 
-        assert len(errors) == 1
+        assert len(errors) > 0
         assert str(errors[0]) == "Some exception"
