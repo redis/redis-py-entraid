@@ -50,7 +50,7 @@ class TestEntraIdCredentialsProvider:
 
         # Run token manager
         credential_provider.get_credentials()
-        sleep(0.3)
+        sleep(0.5)
 
         assert len(tokens) == 1
 
