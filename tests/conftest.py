@@ -7,10 +7,10 @@ from redis.auth.idp import IdentityProviderInterface
 
 from entraid.cred_provider import EntraIdCredentialsProvider, TokenAuthConfig
 from entraid.identity_provider import ManagedIdentityType, create_provider_from_managed_identity, \
-    create_provider_from_service_principal
+    create_provider_from_service_principal, EntraIDIdentityProvider
 
 
-def identity_provider(request) -> IdentityProviderInterface:
+def get_identity_provider(request) -> EntraIDIdentityProvider:
     auth_type = os.getenv("IDP_AUTH_TYPE")
 
     if auth_type == "MANAGED_IDENTITY":
@@ -76,7 +76,7 @@ def get_credential_provider(request) -> CredentialProvider:
     else:
         cred_provider_kwargs = {}
 
-    idp = identity_provider(request)
+    idp = get_identity_provider(request)
     initial_delay_in_ms = cred_provider_kwargs.get("initial_delay_in_ms", 0)
     block_for_initial = cred_provider_kwargs.get("block_for_initial", False)
     expiration_refresh_ratio = cred_provider_kwargs.get(
@@ -108,3 +108,8 @@ def get_credential_provider(request) -> CredentialProvider:
 @pytest.fixture()
 def credential_provider(request) -> CredentialProvider:
     return get_credential_provider(request)
+
+
+@pytest.fixture()
+def identity_provider(request) -> EntraIDIdentityProvider:
+    return get_identity_provider(request)
