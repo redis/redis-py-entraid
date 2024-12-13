@@ -50,7 +50,7 @@ class TestEntraIdCredentialsProvider:
 
         # Run token manager
         credential_provider.get_credentials()
-        sleep(0.5)
+        sleep(1)
 
         assert len(tokens) > 0
 
@@ -75,7 +75,7 @@ class TestEntraIdCredentialsProvider:
 
         # Run token manager
         await credential_provider.get_credentials_async()
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(1)
 
         assert len(tokens) > 0
 
@@ -104,7 +104,7 @@ class TestEntraIdCredentialsProvider:
 
         # Run token manager
         credential_provider.get_credentials()
-        sleep(0.5)
+        sleep(1)
 
         assert len(errors) > 0
         assert str(errors[0]) == "Some exception"
@@ -135,7 +135,7 @@ class TestEntraIdCredentialsProvider:
 
         # Run token manager
         await credential_provider.get_credentials_async()
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(1)
 
         assert len(errors) > 0
         assert str(errors[0]) == "Some exception"

@@ -2,6 +2,8 @@ name: Python Tests
 
 on:
   push:
+    branches:
+      - main
   pull_request:
 
 concurrency:
@@ -19,7 +21,7 @@ jobs:
   tests:
     strategy:
       matrix:
-        python-version: ['3.9', '3.10', '3.11', '3.12', 'pypy-3.9', 'pypy-3.10']
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', 'pypy-3.9', 'pypy-3.10']
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
