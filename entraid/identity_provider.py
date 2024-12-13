@@ -65,6 +65,11 @@ class EntraIDIdentityProvider(IdentityProviderInterface):
 
     def _get_token(self, callback: Callable, **kwargs) -> JWToken:
         try:
+            response = callback(**kwargs)
+
+            if "error" in response:
+                raise RequestTokenErr(response["error_description"])
+
             return JWToken(callback(**kwargs)["access_token"])
         except Exception as e:
             raise RequestTokenErr(e)
