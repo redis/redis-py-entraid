@@ -34,7 +34,7 @@ class TestEntraIdCredentialsProvider:
         "credential_provider",
         [
             {
-                "cred_provider_kwargs": {"expiration_refresh_ratio": 0.00001},
+                "cred_provider_kwargs": {"expiration_refresh_ratio": 0.00005},
             }
         ],
         indirect=True,
@@ -58,7 +58,7 @@ class TestEntraIdCredentialsProvider:
         "credential_provider",
         [
             {
-                "cred_provider_kwargs": {"expiration_refresh_ratio": 0.00001},
+                "cred_provider_kwargs": {"expiration_refresh_ratio": 0.00005},
             }
         ],
         indirect=True,
@@ -75,7 +75,7 @@ class TestEntraIdCredentialsProvider:
 
         # Run token manager
         await credential_provider.get_credentials_async()
-        await asyncio.sleep(0.3)
+        await asyncio.sleep(0.5)
 
         assert len(tokens) == 1
 
@@ -83,7 +83,7 @@ class TestEntraIdCredentialsProvider:
         "credential_provider",
         [
             {
-                "cred_provider_kwargs": {"expiration_refresh_ratio": 0.00001},
+                "cred_provider_kwargs": {"expiration_refresh_ratio": 0.00005},
             }
         ],
         indirect=True,
@@ -104,7 +104,7 @@ class TestEntraIdCredentialsProvider:
 
         # Run token manager
         credential_provider.get_credentials()
-        sleep(0.3)
+        sleep(0.5)
 
         assert len(errors) == 1
         assert str(errors[0]) == "Some exception"
@@ -113,7 +113,7 @@ class TestEntraIdCredentialsProvider:
         "credential_provider",
         [
             {
-                "cred_provider_kwargs": {"expiration_refresh_ratio": 0.00001},
+                "cred_provider_kwargs": {"expiration_refresh_ratio": 0.00005},
             }
         ],
         indirect=True,
@@ -135,7 +135,7 @@ class TestEntraIdCredentialsProvider:
 
         # Run token manager
         await credential_provider.get_credentials_async()
-        await asyncio.sleep(0.3)
+        await asyncio.sleep(0.5)
 
         assert len(errors) == 1
         assert str(errors[0]) == "Some exception"

@@ -6,7 +6,6 @@ on:
 
 concurrency:
   group: ${{ github.event.pull_request.number || github.ref }}-tests
-  cancel-in-progress: true
 
 permissions:
   contents: read
