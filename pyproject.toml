@@ -17,6 +17,6 @@ dependencies = [
   "msal~=1.31.0",
 ]
 
-[tool.setuptools.packages.find]
+[tool.setuptools.packages]
 include = ["redis_entraid"]
-excludea = ["tests", ".github"]
+exclude = ["tests", ".github"]
