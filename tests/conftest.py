@@ -5,8 +5,8 @@ from _pytest.fixtures import SubRequest
 from redis import CredentialProvider
 from redis.auth.idp import IdentityProviderInterface
 
-from entraid.cred_provider import EntraIdCredentialsProvider, TokenAuthConfig
-from entraid.identity_provider import ManagedIdentityType, create_provider_from_managed_identity, \
+from redis_entraid.cred_provider import EntraIdCredentialsProvider, TokenAuthConfig
+from redis_entraid.identity_provider import ManagedIdentityType, create_provider_from_managed_identity, \
     create_provider_from_service_principal, EntraIDIdentityProvider
 
 
@@ -93,10 +93,10 @@ def get_credential_provider(request) -> CredentialProvider:
     )
 
     auth_config = TokenAuthConfig(idp)
-    auth_config.expiration_refresh_ratio(expiration_refresh_ratio)
-    auth_config.lower_refresh_bound_millis(lower_refresh_bound_millis)
-    auth_config.max_attempts(max_attempts)
-    auth_config.delay_in_ms(delay_in_ms)
+    auth_config.expiration_refresh_ratio = expiration_refresh_ratio
+    auth_config.lower_refresh_bound_millis = lower_refresh_bound_millis
+    auth_config.max_attempts = max_attempts
+    auth_config.delay_in_ms = delay_in_ms
 
     return EntraIdCredentialsProvider(
         config=auth_config,

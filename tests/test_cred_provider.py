@@ -4,7 +4,7 @@ from time import sleep
 import pytest
 from redis.auth.token import TokenInterface
 
-from entraid.cred_provider import EntraIdCredentialsProvider
+from redis_entraid.cred_provider import EntraIdCredentialsProvider
 
 
 class TestEntraIdCredentialsProvider:
