@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "redispy-entraid-credentials"
+version = "0.0.1"
+authors = [
+  { name="Redis Inc.", email="oss@redis.com" },
+]
+description = "Entra ID credentials provider implementation for Redis-py client"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+  "redis @ git+https://github.com/redis/redis-py.git/@vv-tba-support",
+  "PyJWT~=2.9.0",
+  "msal~=1.31.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["redis_entraid"]
+excludea = ["tests", ".github"]

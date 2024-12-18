@@ -1,7 +1,7 @@
 import pytest
 from msal import TokenCache
 
-from entraid.identity_provider import EntraIDIdentityProvider
+from redis_entraid.identity_provider import EntraIDIdentityProvider
 
 
 class TestEntraIDIdentityProvider:

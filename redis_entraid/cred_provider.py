@@ -1,11 +1,13 @@
+from dataclasses import dataclass
 from typing import Union, Tuple, Callable, Any, Awaitable
 
 from redis.credentials import StreamingCredentialProvider
 from redis.auth.token_manager import TokenManagerConfig, RetryPolicy, TokenManager, CredentialsListener
 
-from entraid.identity_provider import EntraIDIdentityProvider
+from redis_entraid.identity_provider import EntraIDIdentityProvider
 
 
+@dataclass
 class TokenAuthConfig:
     """
     Configuration for token authentication.
@@ -19,82 +21,26 @@ class TokenAuthConfig:
     DEFAULT_MAX_ATTEMPTS = 3
     DEFAULT_DELAY_IN_MS = 3
 
-    def __init__(self, idp: EntraIDIdentityProvider):
-        self._expiration_refresh_ratio = self.DEFAULT_EXPIRATION_REFRESH_RATIO
-        self._lower_refresh_bound_millis = self.DEFAULT_LOWER_REFRESH_BOUND_MILLIS
-        self._token_request_execution_timeout_in_ms = self.DEFAULT_TOKEN_REQUEST_EXECUTION_TIMEOUT_IN_MS
-        self._max_attempts = self.DEFAULT_MAX_ATTEMPTS
-        self._delay_in_ms = self.DEFAULT_DELAY_IN_MS
-        self._idp = idp
+    idp: EntraIDIdentityProvider
+    expiration_refresh_ratio: float = DEFAULT_EXPIRATION_REFRESH_RATIO
+    lower_refresh_bound_millis: int = DEFAULT_LOWER_REFRESH_BOUND_MILLIS
+    token_request_execution_timeout_in_ms: int = DEFAULT_TOKEN_REQUEST_EXECUTION_TIMEOUT_IN_MS
+    max_attempts: int = DEFAULT_MAX_ATTEMPTS
+    delay_in_ms: int = DEFAULT_DELAY_IN_MS
 
     def get_token_manager_config(self) -> TokenManagerConfig:
         return TokenManagerConfig(
-            self._expiration_refresh_ratio,
-            self._lower_refresh_bound_millis,
-            self._token_request_execution_timeout_in_ms,
+            self.expiration_refresh_ratio,
+            self.lower_refresh_bound_millis,
+            self.token_request_execution_timeout_in_ms,
             RetryPolicy(
-                self._max_attempts,
-                self._delay_in_ms
+                self.max_attempts,
+                self.delay_in_ms
             )
         )
 
     def get_identity_provider(self) -> EntraIDIdentityProvider:
-        return self._idp
-
-    def expiration_refresh_ratio(self, value: float):
-        """
-        Percentage value of total token TTL when refresh should be triggered.
-        Default: 0.8
-
-        :param value: float
-        :return: Self
-        """
-        self._expiration_refresh_ratio = value
-        return self
-
-    def lower_refresh_bound_millis(self, value: int):
-        """
-        Represents the minimum time in milliseconds before token expiration to trigger a refresh, in milliseconds.
-        Default: 0
-
-        :param value: int
-        :return: Self
-        """
-        self._lower_refresh_bound_millis = value
-        return self
-
-    def token_request_execution_timeout_in_ms(self, value: int):
-        """
-        Represents the maximum time in milliseconds to wait for a token request to complete.
-        Default: 100
-
-        :param value: int
-        :return: Self
-        """
-        self._token_request_execution_timeout_in_ms = value
-        return self
-
-    def max_attempts(self, value: int):
-        """
-        Represents the maximum number of attempts to trigger a refresh in case of error.
-        Default: 3
-
-        :param value: int
-        :return: Self
-        """
-        self._max_attempts = value
-        return self
-
-    def delay_in_ms(self, value: int):
-        """
-        Represents the delay between retries.
-        Default: 10
-
-        :param value: int
-        :return: Self
-        """
-        self._delay_in_ms = value
-        return self
+        return self.idp
 
 
 class EntraIdCredentialsProvider(StreamingCredentialProvider):
