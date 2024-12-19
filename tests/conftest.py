@@ -31,9 +31,9 @@ def get_identity_provider(request) -> EntraIDIdentityProvider:
 
 
 def _get_managed_identity_provider(request):
-    authority = os.getenv("IDP_AUTHORITY")
-    resource = os.getenv("IDP_RESOURCE")
-    id_value = os.getenv("IDP_ID_VALUE", None)
+    authority = os.getenv("AZURE_AUTHORITY")
+    resource = os.getenv("AZURE_RESOURCE")
+    id_value = os.getenv("AZURE_ID_VALUE", None)
 
     if hasattr(request, "param"):
         kwargs = request.param.get("idp_kwargs", {})
@@ -54,10 +54,10 @@ def _get_managed_identity_provider(request):
 
 
 def _get_service_principal_provider(request):
-    client_id = os.getenv("IDP_CLIENT_ID")
-    client_credential = os.getenv("IDP_CLIENT_CREDENTIAL")
-    authority = os.getenv("IDP_AUTHORITY")
-    scopes = os.getenv("IDP_SCOPES", [])
+    client_id = os.getenv("AZURE_CLIENT_ID")
+    client_credential = os.getenv("AZURE_CLIENT_SECRET")
+    authority = os.getenv("AZURE_AUTHORITY")
+    scopes = os.getenv("AZURE_REDIS_SCOPES", [])
 
     if hasattr(request, "param"):
         kwargs = request.param.get("idp_kwargs", {})
