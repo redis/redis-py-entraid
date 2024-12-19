@@ -18,6 +18,12 @@ class ManagedIdentityType(Enum):
     SYSTEM_ASSIGNED = SystemAssignedManagedIdentity
 
 
+class ManagedIdentityIdType(Enum):
+    CLIENT_ID = "client_id"
+    OBJECT_ID = "object_id"
+    RESOURCE_ID = "resource_id"
+
+
 class EntraIDIdentityProvider(IdentityProviderInterface):
     """
     EntraID Identity Provider implementation.
@@ -72,30 +78,30 @@ class EntraIDIdentityProvider(IdentityProviderInterface):
 def create_provider_from_managed_identity(
         identity_type: ManagedIdentityType,
         resource: str,
-        client_id: Optional[str] = None,
-        object_id: Optional[str] = None,
-        resource_id: Optional[str] = None,
+        id_type: Optional[ManagedIdentityIdType] = None,
+        id_value: Optional[str] = '',
         **kwargs
 ) -> EntraIDIdentityProvider:
     """
     Create an EntraID identity provider following Managed Identity auth flow.
 
-    :param resource_id: Resource ID
-    :param object_id: Object ID
-    :param client_id: Client ID
     :param identity_type: User Assigned or System Assigned.
     :param resource: Resource for which token should be acquired.
+    :param id_type: Required for User Assigned identity type only.
+    :param id_value: Required for User Assigned identity type only.
     :param kwargs: Additional arguments you may need during specify to request token.
     See: :class:`ManagedIdentityClient` acquire_token_for_client method.
 
     :return: :class:`EntraIDIdentityProvider`
     """
     if identity_type == ManagedIdentityType.USER_ASSIGNED:
+        if id_type is None or id_value == '':
+            raise ValueError("Id_type and id_value are required for User Assigned identity auth")
+
         kwargs = {
-            'client_id': client_id,
-            'object_id': object_id,
-            'resource_id': resource_id,
+            id_type.value: id_value
         }
+
         managed_identity = identity_type.value(**kwargs)
     else:
         managed_identity = identity_type.value()
