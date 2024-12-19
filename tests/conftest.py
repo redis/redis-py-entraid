@@ -41,7 +41,7 @@ def _get_managed_identity_provider(request):
         kwargs = {}
 
     identity_type = kwargs.pop("identity_type", ManagedIdentityType.SYSTEM_ASSIGNED)
-    id_type = kwargs.pop("id_type", ManagedIdentityIdType.CLIENT_ID)
+    id_type = kwargs.pop("id_type", ManagedIdentityIdType.OBJECT_ID)
 
     return create_provider_from_managed_identity(
         identity_type=identity_type,
