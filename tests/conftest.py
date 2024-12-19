@@ -33,7 +33,7 @@ def get_identity_provider(request) -> EntraIDIdentityProvider:
 def _get_managed_identity_provider(request):
     authority = os.getenv("AZURE_AUTHORITY")
     resource = os.getenv("AZURE_RESOURCE")
-    id_value = os.getenv("AZURE_ID_VALUE", None)
+    id_value = os.getenv("AZURE_USER_ASSIGNED_MANAGED_ID", None)
 
     if hasattr(request, "param"):
         kwargs = request.param.get("idp_kwargs", {})
