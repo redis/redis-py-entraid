@@ -2,13 +2,11 @@ import os
 from enum import Enum
 
 import pytest
-from _pytest.fixtures import SubRequest
 from redis import CredentialProvider
-from redis.auth.idp import IdentityProviderInterface
 
 from redis_entraid.cred_provider import EntraIdCredentialsProvider, TokenAuthConfig
 from redis_entraid.identity_provider import ManagedIdentityType, create_provider_from_managed_identity, \
-    create_provider_from_service_principal, EntraIDIdentityProvider, ManagedIdentityIdType
+    create_provider_from_service_principal, EntraIDIdentityProvider
 
 
 class AuthType(Enum):
@@ -33,7 +31,9 @@ def get_identity_provider(request) -> EntraIDIdentityProvider:
 def _get_managed_identity_provider(request):
     authority = os.getenv("AZURE_AUTHORITY")
     resource = os.getenv("AZURE_RESOURCE")
-    id_value = os.getenv("AZURE_USER_ASSIGNED_MANAGED_ID", None)
+    object_id = os.getenv("AZURE_USER_ASSIGNED_MANAGED_ID", None)
+    client_id = os.getenv("AZURE_CLIENT_ID", None)
+    resource_id = os.getenv("AZURE_RESOURCE_ID", None)
 
     if hasattr(request, "param"):
         kwargs = request.param.get("idp_kwargs", {})
@@ -41,13 +41,13 @@ def _get_managed_identity_provider(request):
         kwargs = {}
 
     identity_type = kwargs.pop("identity_type", ManagedIdentityType.SYSTEM_ASSIGNED)
-    id_type = kwargs.pop("id_type", ManagedIdentityIdType.CLIENT_ID)
 
     return create_provider_from_managed_identity(
         identity_type=identity_type,
         resource=resource,
-        id_type=id_type,
-        id_value=id_value,
+        client_id=client_id,
+        object_id=object_id,
+        resource_id=resource_id,
         authority=authority,
         **kwargs
     )
