@@ -5,9 +5,30 @@ import pytest
 from redis.auth.token import TokenInterface
 
 from redis_entraid.cred_provider import EntraIdCredentialsProvider
+from redis_entraid.identity_provider import ManagedIdentityType
+from tests.conftest import AuthType
 
 
 class TestEntraIdCredentialsProvider:
+    @pytest.mark.parametrize(
+        "credential_provider",
+        [
+            {
+                "idp_kwargs": {"auth_type": AuthType.SERVICE_PRINCIPAL},
+            },
+            {
+                "idp_kwargs": {"auth_type": AuthType.MANAGED_IDENTITY},
+            },
+            {
+                "idp_kwargs": {
+                    "auth_type": AuthType.MANAGED_IDENTITY,
+                    "identity_type": ManagedIdentityType.USER_ASSIGNED
+                },
+            }
+        ],
+        ids=["Service principal", "Managed Identity (System-assigned)", "Managed Identity (User-assigned)"],
+        indirect=True,
+    )
     def test_get_credentials(self, credential_provider: EntraIdCredentialsProvider):
         credentials = credential_provider.get_credentials()
         assert len(credentials) == 2
@@ -17,12 +38,20 @@ class TestEntraIdCredentialsProvider:
         [
             {
                 "cred_provider_kwargs": {"block_for_initial": False},
+                "idp_kwargs": {"auth_type": AuthType.SERVICE_PRINCIPAL},
             },
             {
                 "cred_provider_kwargs": {"block_for_initial": True},
+                "idp_kwargs": {"auth_type": AuthType.MANAGED_IDENTITY},
+            },
+            {
+                "idp_kwargs": {
+                    "auth_type": AuthType.MANAGED_IDENTITY,
+                    "identity_type": ManagedIdentityType.USER_ASSIGNED
+                },
             }
         ],
-        ids=["Non-blocking", "Blocking"],
+        ids=["Service principal", "Managed Identity (System-assigned)", "Managed Identity (User-assigned)"],
         indirect=True,
     )
     @pytest.mark.asyncio

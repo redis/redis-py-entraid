@@ -1,4 +1,5 @@
 import os
+from enum import Enum
 
 import pytest
 from _pytest.fixtures import SubRequest
@@ -7,13 +8,23 @@ from redis.auth.idp import IdentityProviderInterface
 
 from redis_entraid.cred_provider import EntraIdCredentialsProvider, TokenAuthConfig
 from redis_entraid.identity_provider import ManagedIdentityType, create_provider_from_managed_identity, \
-    create_provider_from_service_principal, EntraIDIdentityProvider
+    create_provider_from_service_principal, EntraIDIdentityProvider, ManagedIdentityIdType
+
+
+class AuthType(Enum):
+    MANAGED_IDENTITY = "managed_identity"
+    SERVICE_PRINCIPAL = "service_principal"
 
 
 def get_identity_provider(request) -> EntraIDIdentityProvider:
-    auth_type = os.getenv("IDP_AUTH_TYPE")
+    if hasattr(request, "param"):
+        kwargs = request.param.get("idp_kwargs", {})
+    else:
+        kwargs = {}
 
-    if auth_type == "MANAGED_IDENTITY":
+    auth_type = kwargs.pop("auth_type", AuthType.SERVICE_PRINCIPAL)
+
+    if auth_type == AuthType.MANAGED_IDENTITY:
         return _get_managed_identity_provider(request)
 
     return _get_service_principal_provider(request)
@@ -21,15 +32,16 @@ def get_identity_provider(request) -> EntraIDIdentityProvider:
 
 def _get_managed_identity_provider(request):
     authority = os.getenv("IDP_AUTHORITY")
-    identity_type = ManagedIdentityType(os.getenv("IDP_IDENTITY_TYPE"))
     resource = os.getenv("IDP_RESOURCE")
-    id_type = os.getenv("IDP_ID_TYPE", None)
     id_value = os.getenv("IDP_ID_VALUE", None)
 
     if hasattr(request, "param"):
         kwargs = request.param.get("idp_kwargs", {})
     else:
         kwargs = {}
+
+    identity_type = kwargs.pop("identity_type", ManagedIdentityType.SYSTEM_ASSIGNED)
+    id_type = kwargs.pop("id_type", ManagedIdentityIdType.CLIENT_ID)
 
     return create_provider_from_managed_identity(
         identity_type=identity_type,
