@@ -1,6 +1,6 @@
 ## Installation
 ```bash
-pip install redispy-entraid-credentials
+pip install redis-entraid
 ```
 
 ## Usage
