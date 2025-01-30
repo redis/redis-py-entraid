@@ -33,7 +33,7 @@ The package depends on [redis-py](https://github.com/redis/redis-py/tree/v5.3.0b
 
 ### Step 1 - Import the dependencies
 
-After having installed the the 
+After having installed the package, you can import its modules:
 
 ```python
 import redis
