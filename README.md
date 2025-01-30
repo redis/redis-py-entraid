@@ -1,3 +1,11 @@
+The `redis-entra-id` Python package helps simplifying the authentication with Azure Cache for Redis using Microsoft Entra ID (formerly Azure Active Directory). It enables seamless integration with Redis Cache for Redis by fetching authentication tokens and managing token renewal in the background. This package builds on top of `redis-py` and provides a structured way to authenticate by using a:
+
+* System-assigned managed identity
+* User-assigned managed identity
+* Service principal
+
+You can learn more about managed identities in the [Microsoft Entra ID documentation](https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview).
+
 ## Preparation 
 
 ### Create a service principal in Azure
