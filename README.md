@@ -12,9 +12,10 @@ You can [register an application and create a service principal](https://learn.m
 
 Create an Azure Cache for Redis instance and grant your service principal access:
 
-1. Navigate to `Settings/Authentication`
-2. Enable Entra ID authentication
-3. Assign your service principal with the role `Data Owner` to the cache
+1. Create the cache and wait until it was created successfully
+2. Navigate to `Settings/Authentication`
+3. Enable Entra ID authentication
+4. Assign your service principal with the role `Data Owner` to the cache
 
 You can find further details in the [Azure Cache for Redis documentation](https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-azure-active-directory-for-authentication).
 
