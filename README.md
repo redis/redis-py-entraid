@@ -84,7 +84,7 @@ await cred_provider.get_credentials_async()
 
 ### Step 5 - Connect to Redis
 
-When using Entra ID, Azure Cache for Redis enforces TLS. Here is an example that shows how to test the connection in an insecure way:
+When using Entra ID, Azure enforces TLS on your Redis connection. Here is an example that shows how to **test** the connection in an insecure way:
 
 ```python
 client = redis.Redis(host="<HOST>", port=<PORT>, ssl=True, ssl_cert_reqs=None, credential_provider=cred_provider)
