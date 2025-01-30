@@ -1,4 +1,4 @@
-The `redis-entra-id` Python package helps simplifying the authentication with Azure Cache for Redis using Microsoft Entra ID (formerly Azure Active Directory). It enables seamless integration with Redis Cache for Redis by fetching authentication tokens and managing token renewal in the background. This package builds on top of `redis-py` and provides a structured way to authenticate by using a:
+The `redis-entra-id` Python package helps simplifying the authentication with [Azure Managed Redis](https://azure.microsoft.com/en-us/products/managed-redis) and Azure Cache for Redis using Microsoft Entra ID (formerly Azure Active Directory). It enables seamless integration with Azure's Redis services by fetching authentication tokens and managing the token renewal in the background. This package builds on top of `redis-py` and provides a structured way to authenticate by using a:
 
 * System-assigned managed identity
 * User-assigned managed identity
@@ -10,7 +10,7 @@ You can learn more about managed identities in the [Microsoft Entra ID documenta
 
 ### Create a service principal in Azure
 
-You can [register an application and create a service principal](https://learn.microsoft.com/en-us/entra/identity-platform/app-objects-and-service-principals?tabs=browser) in Azure. Then the following credentials are used to authenticate via Entra ID:
+In this quick start guide, you will [register an application and create a service principal](https://learn.microsoft.com/en-us/entra/identity-platform/app-objects-and-service-principals?tabs=browser) in Azure. Then the following credentials are used to authenticate via Entra ID:
 
 * Tenant id
 * Client id
@@ -18,14 +18,14 @@ You can [register an application and create a service principal](https://learn.m
 
 ### Create cache and grant access
 
-Create an Azure Cache for Redis instance and grant your service principal access:
+Create a Redis cache in Azure and grant your service principal access:
 
-1. Create the cache and wait until it was created successfully
+1. Create a cache resource and wait until it was created successfully
 2. Navigate to `Settings/Authentication`
-3. Enable Entra ID authentication
-4. Assign your service principal with the role `Data Owner` to the cache
+3. If needed, enable Entra ID authentication
+4. Assign your previously created service principal to the cache
 
-You can find further details in the [Azure Cache for Redis documentation](https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-azure-active-directory-for-authentication).
+Further details are available in the [AMR](https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/managed-redis/managed-redis-entra-for-authentication) or [ACR](https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-azure-active-directory-for-authentication) documentation.
 
 ### Install the Entra ID package
 
