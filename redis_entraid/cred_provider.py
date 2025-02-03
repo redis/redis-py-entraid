@@ -4,8 +4,8 @@ from redis.credentials import StreamingCredentialProvider
 from redis.auth.token_manager import TokenManagerConfig, RetryPolicy, TokenManager, CredentialsListener
 
 from redis_entraid.identity_provider import ManagedIdentityType, ManagedIdentityIdType, \
-    create_provider_from_managed_identity, ManagedIdentityProviderConfig, ServicePrincipalIdentityProviderConfig, \
-    create_provider_from_service_principal
+    _create_provider_from_managed_identity, ManagedIdentityProviderConfig, ServicePrincipalIdentityProviderConfig, \
+    _create_provider_from_service_principal
 
 DEFAULT_EXPIRATION_REFRESH_RATIO = 0.7
 DEFAULT_LOWER_REFRESH_BOUND_MILLIS = 0
@@ -28,9 +28,9 @@ class EntraIdCredentialsProvider(StreamingCredentialProvider):
         :param block_for_initial: Block execution until initial token will be acquired (valid for async only)
         """
         if isinstance(idp_config, ManagedIdentityProviderConfig):
-            idp = create_provider_from_managed_identity(idp_config)
+            idp = _create_provider_from_managed_identity(idp_config)
         else:
-            idp = create_provider_from_service_principal(idp_config)
+            idp = _create_provider_from_service_principal(idp_config)
 
         self._token_mgr = TokenManager(
             idp,
@@ -122,11 +122,11 @@ def create_from_managed_identity(
 
 
 def create_from_service_principal(
-        client_credential: Any,
         client_id: str,
+        client_credential: Any,
+        tenant_id: Optional[str] = None,
         scopes: Optional[List[str]] = None,
         timeout: Optional[float] = None,
-        tenant_id: Optional[str] = None,
         token_kwargs: Optional[dict] = None,
         app_kwargs: Optional[dict] = None,
         token_manager_config: Optional[TokenManagerConfig] = TokenManagerConfig(
@@ -136,9 +136,8 @@ def create_from_service_principal(
             RetryPolicy(
                 DEFAULT_MAX_ATTEMPTS,
                 DEFAULT_DELAY_IN_MS
-            )
-        )
-) -> EntraIdCredentialsProvider:
+                )
+            )) -> EntraIdCredentialsProvider:
     """
     Create a credential provider from a service principal.
 

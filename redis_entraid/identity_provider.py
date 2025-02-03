@@ -96,7 +96,7 @@ class EntraIDIdentityProvider(IdentityProviderInterface):
             raise RequestTokenErr(e)
 
 
-def create_provider_from_managed_identity(config: ManagedIdentityProviderConfig) -> EntraIDIdentityProvider:
+def _create_provider_from_managed_identity(config: ManagedIdentityProviderConfig) -> EntraIDIdentityProvider:
     """
     Create an EntraID identity provider following Managed Identity auth flow.
 
@@ -121,7 +121,7 @@ def create_provider_from_managed_identity(config: ManagedIdentityProviderConfig)
     return EntraIDIdentityProvider(app, [], config.resource, **config.kwargs)
 
 
-def create_provider_from_service_principal(config: ServicePrincipalIdentityProviderConfig) -> EntraIDIdentityProvider:
+def _create_provider_from_service_principal(config: ServicePrincipalIdentityProviderConfig) -> EntraIDIdentityProvider:
     """
     Create an EntraID identity provider following Service Principal auth flow.
 

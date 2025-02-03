@@ -10,8 +10,8 @@ from redis_entraid.cred_provider import EntraIdCredentialsProvider, DEFAULT_EXPI
     DEFAULT_LOWER_REFRESH_BOUND_MILLIS, DEFAULT_MAX_ATTEMPTS, DEFAULT_DELAY_IN_MS, \
     DEFAULT_TOKEN_REQUEST_EXECUTION_TIMEOUT_IN_MS
 from redis_entraid.identity_provider import ManagedIdentityType, EntraIDIdentityProvider, ManagedIdentityIdType, \
-    ManagedIdentityProviderConfig, ServicePrincipalIdentityProviderConfig, create_provider_from_managed_identity, \
-    create_provider_from_service_principal
+    ManagedIdentityProviderConfig, ServicePrincipalIdentityProviderConfig, _create_provider_from_managed_identity, \
+    _create_provider_from_service_principal
 
 
 class AuthType(Enum):
@@ -130,9 +130,9 @@ def credential_provider(request) -> CredentialProvider:
 def identity_provider(request) -> EntraIDIdentityProvider:
     config = _identity_provider_config(request)
     if isinstance(config, ManagedIdentityProviderConfig):
-        return create_provider_from_managed_identity(config)
+        return _create_provider_from_managed_identity(config)
 
-    return create_provider_from_service_principal(config)
+    return _create_provider_from_service_principal(config)
 
 def _identity_provider_config(request) -> Union[ManagedIdentityProviderConfig, ServicePrincipalIdentityProviderConfig]:
     return get_identity_provider_config(request)
