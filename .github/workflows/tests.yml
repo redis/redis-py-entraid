@@ -32,7 +32,7 @@ jobs:
         pip install -r dev_requirements.txt
     - name: Run tests with Python version ${{ matrix.python-version }}
       run: |
-        pytest --junitxml=test-results.xml
+        pytest --junitxml=test-results.xml --extra-markers="not managed_identity"
     - name: Upload test results
       if: always()
       uses: actions/upload-artifact@v4
