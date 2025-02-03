@@ -1,4 +1,4 @@
-from redis.auth.token_manager import RetryPolicyThe `redis-entra-id` Python package helps simplifying the authentication with [Azure Managed Redis](https://azure.microsoft.com/en-us/products/managed-redis) and Azure Cache for Redis using Microsoft Entra ID (formerly Azure Active Directory). It enables seamless integration with Azure's Redis services by fetching authentication tokens and managing the token renewal in the background. This package builds on top of `redis-py` and provides a structured way to authenticate by using a:
+The `redis-entra-id` Python package helps simplifying the authentication with [Azure Managed Redis](https://azure.microsoft.com/en-us/products/managed-redis) and Azure Cache for Redis using Microsoft Entra ID (formerly Azure Active Directory). It enables seamless integration with Azure's Redis services by fetching authentication tokens and managing the token renewal in the background. This package builds on top of `redis-py` and provides a structured way to authenticate by using a:
 
 * System-assigned managed identity
 * User-assigned managed identity
