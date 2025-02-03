@@ -35,7 +35,7 @@ You need to install the `redis-py` Entra ID package via the following command:
 pip install redis-entra-id
 ```
 
-The package depends on [redis-py](https://github.com/redis/redis-py/tree/v5.3.0b4) version `5.3.0b4`.
+The package depends on [redis-py](https://github.com/redis/redis-py).
 
 ## Usage
 
@@ -44,49 +44,56 @@ The package depends on [redis-py](https://github.com/redis/redis-py/tree/v5.3.0b
 After having installed the package, you can import its modules:
 
 ```python
-import redis
-from redis_entraid import identity_provider
-from redis_entraid import cred_provider
+from redis import Redis
+from redis_entraid.cred_provider import *
 ```
 
-### Step 2 - Define your authority based on the tenant ID
+### Step 2 - Create the credential provider via the factory method
 
 ```python
-authority = "{}/{}".format("https://login.microsoftonline.com", "<TENANT_ID>")
+credential_provider = create_from_service_principal(
+    CLIENT_ID, 
+    CLIENT_SECRET, 
+    TENANT_ID
+)
 ```
 
-> This step is going to be removed in the next pre-release version of `redis-py-entraid`. Instead, the factory method will allow to pass the tenant id direclty.
+### Step 3 - Provide optional token renewal configuration
 
-### Step 3 - Create the identity provider via the factory method
-
-```python
-idp = identity_provider.create_provider_from_service_principal("<CLIENT_SECRET>", "<CLIENT_ID>", authority=authority)
-```
-
-### Step 4 - Initialize a credentials provider from the authentication configuration
-
-You can use the default configuration or customize the background task for token renewal.
+The default configuration would be applied, but you're able to customise it.
   
 ```python
-auth_config = TokenAuthConfig(idp)
-cred_provider = EntraIdCredentialsProvider(auth_config)
+credential_provider = create_from_service_principal(
+    CLIENT_ID, 
+    CLIENT_SECRET, 
+    TENANT_ID,
+    token_manager_config=TokenManagerConfig(
+        expiration_refresh_ratio=0.9,
+        lower_refresh_bound_millis=DEFAULT_LOWER_REFRESH_BOUND_MILLIS,
+        token_request_execution_timeout_in_ms=DEFAULT_TOKEN_REQUEST_EXECUTION_TIMEOUT_IN_MS,
+        retry_policy=RetryPolicy(
+            max_attempts=5,
+            delay_in_ms=50
+        )
+    )
+)
 ```
 
 You can test the credentials provider by obtaining a token. The following example demonstrates both, a synchronous and an asynchronous approach:
 
 ```python
 # Synchronous
-cred_provider.get_credentials()
+credential_provider.get_credentials()
 
 # Asynchronous
-await cred_provider.get_credentials_async()
+await credential_provider.get_credentials_async()
 ```
 
-### Step 5 - Connect to Redis
+### Step 4 - Connect to Redis
 
 When using Entra ID, Azure enforces TLS on your Redis connection. Here is an example that shows how to **test** the connection in an insecure way:
 
 ```python
-client = redis.Redis(host="<HOST>", port=<PORT>, ssl=True, ssl_cert_reqs=None, credential_provider=cred_provider)
+client = Redis(host=HOST, port=PORT, ssl=True, ssl_cert_reqs=None, credential_provider=credential_provider)
 print("The database size is: {}".format(client.dbsize()))
 ```

@@ -19,7 +19,7 @@ class TestEntraIDIdentityProvider:
         ],
         indirect=True,
     )
-    def test_request_token_caches_token_after_initial_request(self, identity_provider):
+    def test_request_token_caches_token_after_initial_request(self, identity_provider: EntraIDIdentityProvider):
         assert len(list(self.CUSTOM_CACHE.search(TokenCache.CredentialType.ACCESS_TOKEN))) == 0
 
         token = identity_provider.request_token()
