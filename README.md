@@ -45,7 +45,7 @@ After having installed the package, you can import its modules:
 
 ```python
 from redis import Redis
-from redis_entraid.cred_provider import create_from_service_principal
+from redis_entraid.cred_provider import *
 ```
 
 ### Step 2 - Create the credential provider via the factory method
