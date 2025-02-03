@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional, Union, Callable, Any, List
 
@@ -31,7 +31,7 @@ class ManagedIdentityProviderConfig:
     resource: str
     id_type: Optional[ManagedIdentityIdType] = None
     id_value: Optional[str] = ''
-    kwargs: Optional[dict] = None
+    kwargs: Optional[dict] = field(default_factory=dict)
 
 
 @dataclass
@@ -42,7 +42,7 @@ class ServicePrincipalIdentityProviderConfig:
     timeout: Optional[float] = None
     tenant_id: Optional[str] = None
     token_kwargs: Optional[dict] = None
-    app_kwargs: Optional[dict] = None
+    app_kwargs: Optional[dict] = field(default_factory=dict)
 
 
 class EntraIDIdentityProvider(IdentityProviderInterface):

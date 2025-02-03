@@ -6,9 +6,9 @@ import pytest
 from redis import CredentialProvider
 from redis.auth.token_manager import TokenManagerConfig, RetryPolicy
 
-from redis_entraid.cred_provider import EntraIdCredentialsProvider, DEFAULT_EXPIRATION_REFRESH_RATIO, \
+from redis_entraid.cred_provider import DEFAULT_EXPIRATION_REFRESH_RATIO, \
     DEFAULT_LOWER_REFRESH_BOUND_MILLIS, DEFAULT_MAX_ATTEMPTS, DEFAULT_DELAY_IN_MS, \
-    DEFAULT_TOKEN_REQUEST_EXECUTION_TIMEOUT_IN_MS
+    DEFAULT_TOKEN_REQUEST_EXECUTION_TIMEOUT_IN_MS, create_from_service_principal, create_from_managed_identity
 from redis_entraid.identity_provider import ManagedIdentityType, EntraIDIdentityProvider, ManagedIdentityIdType, \
     ManagedIdentityProviderConfig, ServicePrincipalIdentityProviderConfig, _create_provider_from_managed_identity, \
     _create_provider_from_service_principal
@@ -89,8 +89,6 @@ def get_credential_provider(request) -> CredentialProvider:
         cred_provider_kwargs = {}
 
     idp_config = get_identity_provider_config(request)
-    initial_delay_in_ms = cred_provider_kwargs.get("initial_delay_in_ms", 0)
-    block_for_initial = cred_provider_kwargs.get("block_for_initial", False)
     expiration_refresh_ratio = cred_provider_kwargs.get(
         "expiration_refresh_ratio", DEFAULT_EXPIRATION_REFRESH_RATIO
     )
@@ -114,11 +112,25 @@ def get_credential_provider(request) -> CredentialProvider:
         )
     )
 
-    return EntraIdCredentialsProvider(
-        idp_config=idp_config,
-        token_manager_config=token_mgr_config,
-        initial_delay_in_ms=initial_delay_in_ms,
-        block_for_initial=block_for_initial,
+    if isinstance(idp_config, ServicePrincipalIdentityProviderConfig):
+        return create_from_service_principal(
+            idp_config.client_id,
+            idp_config.client_credential,
+            idp_config.tenant_id,
+            idp_config.scopes,
+            idp_config.timeout,
+            idp_config.token_kwargs,
+            idp_config.app_kwargs,
+            token_mgr_config,
+        )
+
+    return create_from_managed_identity(
+        idp_config.identity_type,
+        idp_config.resource,
+        idp_config.id_type,
+        idp_config.id_value,
+        idp_config.kwargs,
+        token_mgr_config,
     )
 
 
