@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional, Union, Callable, Any
+from typing import Optional, Union, Callable, Any, List
 
 import requests
 from msal import (
@@ -38,7 +38,7 @@ class ManagedIdentityProviderConfig:
 class ServicePrincipalIdentityProviderConfig:
     client_credential: Any
     client_id: str
-    scopes: Optional[list[str]] = None
+    scopes: Optional[List[str]] = None
     timeout: Optional[float] = None
     tenant_id: Optional[str] = None
     token_kwargs: Optional[dict] = None
@@ -55,7 +55,7 @@ class EntraIDIdentityProvider(IdentityProviderInterface):
     def __init__(
             self,
             app: Union[ManagedIdentityClient, ConfidentialClientApplication],
-            scopes : list = [],
+            scopes : List = [],
             resource: str = '',
             **kwargs
     ):

@@ -1,4 +1,4 @@
-from typing import Union, Tuple, Callable, Any, Awaitable, Optional
+from typing import Union, Tuple, Callable, Any, Awaitable, Optional, List
 
 from redis.credentials import StreamingCredentialProvider
 from redis.auth.token_manager import TokenManagerConfig, RetryPolicy, TokenManager, CredentialsListener
@@ -124,7 +124,7 @@ def create_from_managed_identity(
 def create_from_service_principal(
         client_credential: Any,
         client_id: str,
-        scopes: Optional[list[str]] = None,
+        scopes: Optional[List[str]] = None,
         timeout: Optional[float] = None,
         tenant_id: Optional[str] = None,
         token_kwargs: Optional[dict] = None,
