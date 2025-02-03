@@ -88,7 +88,7 @@ def create_from_managed_identity(
         resource: str,
         id_type: Optional[ManagedIdentityIdType] = None,
         id_value: Optional[str] = '',
-        kwargs: Optional[dict] = None,
+        kwargs: Optional[dict] = {},
         token_manager_config: Optional[TokenManagerConfig] = TokenManagerConfig(
             DEFAULT_EXPIRATION_REFRESH_RATIO,
             DEFAULT_LOWER_REFRESH_BOUND_MILLIS,
@@ -127,8 +127,8 @@ def create_from_service_principal(
         tenant_id: Optional[str] = None,
         scopes: Optional[List[str]] = None,
         timeout: Optional[float] = None,
-        token_kwargs: Optional[dict] = None,
-        app_kwargs: Optional[dict] = None,
+        token_kwargs: Optional[dict] = {},
+        app_kwargs: Optional[dict] = {},
         token_manager_config: Optional[TokenManagerConfig] = TokenManagerConfig(
             DEFAULT_EXPIRATION_REFRESH_RATIO,
             DEFAULT_LOWER_REFRESH_BOUND_MILLIS,
