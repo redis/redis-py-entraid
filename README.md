@@ -44,17 +44,17 @@ The package depends on [redis-py](https://github.com/redis/redis-py).
 After having installed the package, you can import its modules:
 
 ```python
-import redis
-from redis_entraid import cred_provider
+from redis import Redis
+from redis_entraid.cred_provider import create_from_service_principal
 ```
 
 ### Step 2 - Create the credential provider via the factory method
 
 ```python
-cred_provider = create_from_service_principal(
-    client_credential="<CLIENT_SECRET>", 
-    client_id="<CLIENT_ID>", 
-    tenant_id="<TENANT_ID>"
+credential_provider = create_from_service_principal(
+    CLIENT_ID, 
+    CLIENT_SECRET, 
+    TENANT_ID
 )
 ```
 
@@ -63,10 +63,10 @@ cred_provider = create_from_service_principal(
 The default configuration would be applied, but you're able to customise it.
   
 ```python
-cred_provider = create_from_service_principal(
-    client_credential="<CLIENT_SECRET>", 
-    client_id="<CLIENT_ID>", 
-    tenant_id="<TENANT_ID>",
+credential_provider = create_from_service_principal(
+    CLIENT_ID, 
+    CLIENT_SECRET, 
+    TENANT_ID,
     token_manager_config=TokenManagerConfig(
         expiration_refresh_ratio=0.9,
         lower_refresh_bound_millis=DEFAULT_LOWER_REFRESH_BOUND_MILLIS,
@@ -83,10 +83,10 @@ You can test the credentials provider by obtaining a token. The following exampl
 
 ```python
 # Synchronous
-cred_provider.get_credentials()
+credential_provider.get_credentials()
 
 # Asynchronous
-await cred_provider.get_credentials_async()
+await credential_provider.get_credentials_async()
 ```
 
 ### Step 4 - Connect to Redis
@@ -94,6 +94,6 @@ await cred_provider.get_credentials_async()
 When using Entra ID, Azure enforces TLS on your Redis connection. Here is an example that shows how to **test** the connection in an insecure way:
 
 ```python
-client = redis.Redis(host="<HOST>", port=<PORT>, ssl=True, ssl_cert_reqs=None, credential_provider=cred_provider)
+client = Redis(host=HOST, port=PORT, ssl=True, ssl_cert_reqs=None, credential_provider=credential_provider)
 print("The database size is: {}".format(client.dbsize()))
 ```
