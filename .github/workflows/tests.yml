@@ -9,9 +9,9 @@ concurrency:
 permissions:
   contents: read
 env:
-  IDP_CLIENT_CREDENTIAL: ${{ secrets.IDP_CLIENT_CREDENTIAL }}
-  IDP_CLIENT_ID: ${{ secrets.IDP_CLIENT_ID }}
-  IDP_TENANT_ID: ${{ secrets.IDP_TENANT_ID }}
+  AZURE_CLIENT_SECRET: ${{ secrets.IDP_CLIENT_CREDENTIAL }}
+  AZURE_CLIENT_ID: ${{ secrets.IDP_CLIENT_ID }}
+  AZURE_TENANT_ID: ${{ secrets.IDP_TENANT_ID }}
 jobs:
   tests:
     strategy:
