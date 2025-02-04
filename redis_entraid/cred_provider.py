@@ -1,63 +1,40 @@
-from dataclasses import dataclass
-from typing import Union, Tuple, Callable, Any, Awaitable
+from typing import Union, Tuple, Callable, Any, Awaitable, Optional, List
 
 from redis.credentials import StreamingCredentialProvider
 from redis.auth.token_manager import TokenManagerConfig, RetryPolicy, TokenManager, CredentialsListener
 
-from redis_entraid.identity_provider import EntraIDIdentityProvider
+from redis_entraid.identity_provider import ManagedIdentityType, ManagedIdentityIdType, \
+    _create_provider_from_managed_identity, ManagedIdentityProviderConfig, ServicePrincipalIdentityProviderConfig, \
+    _create_provider_from_service_principal
 
-
-@dataclass
-class TokenAuthConfig:
-    """
-    Configuration for token authentication.
-
-    Requires :class:`EntraIDIdentityProvider`. It's recommended to use an additional factory methods.
-    See :class:`EntraIDIdentityProvider` for more information.
-    """
-    DEFAULT_EXPIRATION_REFRESH_RATIO = 0.8
-    DEFAULT_LOWER_REFRESH_BOUND_MILLIS = 0
-    DEFAULT_TOKEN_REQUEST_EXECUTION_TIMEOUT_IN_MS = 100
-    DEFAULT_MAX_ATTEMPTS = 3
-    DEFAULT_DELAY_IN_MS = 3
-
-    idp: EntraIDIdentityProvider
-    expiration_refresh_ratio: float = DEFAULT_EXPIRATION_REFRESH_RATIO
-    lower_refresh_bound_millis: int = DEFAULT_LOWER_REFRESH_BOUND_MILLIS
-    token_request_execution_timeout_in_ms: int = DEFAULT_TOKEN_REQUEST_EXECUTION_TIMEOUT_IN_MS
-    max_attempts: int = DEFAULT_MAX_ATTEMPTS
-    delay_in_ms: int = DEFAULT_DELAY_IN_MS
-
-    def get_token_manager_config(self) -> TokenManagerConfig:
-        return TokenManagerConfig(
-            self.expiration_refresh_ratio,
-            self.lower_refresh_bound_millis,
-            self.token_request_execution_timeout_in_ms,
-            RetryPolicy(
-                self.max_attempts,
-                self.delay_in_ms
-            )
-        )
-
-    def get_identity_provider(self) -> EntraIDIdentityProvider:
-        return self.idp
-
+DEFAULT_EXPIRATION_REFRESH_RATIO = 0.7
+DEFAULT_LOWER_REFRESH_BOUND_MILLIS = 0
+DEFAULT_TOKEN_REQUEST_EXECUTION_TIMEOUT_IN_MS = 100
+DEFAULT_MAX_ATTEMPTS = 3
+DEFAULT_DELAY_IN_MS = 3
 
 class EntraIdCredentialsProvider(StreamingCredentialProvider):
     def __init__(
             self,
-            config: TokenAuthConfig,
+            idp_config: Union[ManagedIdentityProviderConfig, ServicePrincipalIdentityProviderConfig],
+            token_manager_config: TokenManagerConfig,
             initial_delay_in_ms: float = 0,
             block_for_initial: bool = False,
     ):
         """
-        :param config:
+        :param idp_config: Identity provider specific configuration.
+        :param token_manager_config: Token manager specific configuration.
         :param initial_delay_in_ms: Initial delay before run background refresh (valid for async only)
         :param block_for_initial: Block execution until initial token will be acquired (valid for async only)
         """
+        if isinstance(idp_config, ManagedIdentityProviderConfig):
+            idp = _create_provider_from_managed_identity(idp_config)
+        else:
+            idp = _create_provider_from_service_principal(idp_config)
+
         self._token_mgr = TokenManager(
-            config.get_identity_provider(),
-            config.get_token_manager_config()
+            idp,
+            token_manager_config
         )
         self._listener = CredentialsListener()
         self._is_streaming = False
@@ -65,6 +42,9 @@ class EntraIdCredentialsProvider(StreamingCredentialProvider):
         self._block_for_initial = block_for_initial
 
     def get_credentials(self) -> Union[Tuple[str], Tuple[str, str]]:
+        """
+        Acquire token from the identity provider.
+        """
         init_token = self._token_mgr.acquire_token()
 
         if self._is_streaming is False:
@@ -77,6 +57,9 @@ class EntraIdCredentialsProvider(StreamingCredentialProvider):
         return init_token.get_token().try_get('oid'), init_token.get_token().get_value()
 
     async def get_credentials_async(self) -> Union[Tuple[str], Tuple[str, str]]:
+        """
+        Acquire token from the identity provider in async mode.
+        """
         init_token = await self._token_mgr.acquire_token_async()
 
         if self._is_streaming is False:
@@ -98,3 +81,84 @@ class EntraIdCredentialsProvider(StreamingCredentialProvider):
 
     def is_streaming(self) -> bool:
         return self._is_streaming
+
+
+def create_from_managed_identity(
+        identity_type: ManagedIdentityType,
+        resource: str,
+        id_type: Optional[ManagedIdentityIdType] = None,
+        id_value: Optional[str] = '',
+        kwargs: Optional[dict] = {},
+        token_manager_config: Optional[TokenManagerConfig] = TokenManagerConfig(
+            DEFAULT_EXPIRATION_REFRESH_RATIO,
+            DEFAULT_LOWER_REFRESH_BOUND_MILLIS,
+            DEFAULT_TOKEN_REQUEST_EXECUTION_TIMEOUT_IN_MS,
+            RetryPolicy(
+                DEFAULT_MAX_ATTEMPTS,
+                DEFAULT_DELAY_IN_MS
+            )
+        )
+) -> EntraIdCredentialsProvider:
+    """
+    Create a credential provider from a managed identity type.
+
+    :param identity_type: Managed identity type.
+    :param resource: Identity provider resource.
+    :param id_type: Identity provider type.
+    :param id_value: Identity provider value.
+    :param kwargs: Optional keyword arguments to pass to identity provider. See: :class:`ManagedIdentityClient`
+    :param token_manager_config: Token manager specific configuration.
+    :return: EntraIdCredentialsProvider instance.
+    """
+    managed_identity_config = ManagedIdentityProviderConfig(
+        identity_type=identity_type,
+        resource=resource,
+        id_type=id_type,
+        id_value=id_value,
+        kwargs=kwargs
+    )
+
+    return EntraIdCredentialsProvider(managed_identity_config, token_manager_config)
+
+
+def create_from_service_principal(
+        client_id: str,
+        client_credential: Any,
+        tenant_id: Optional[str] = None,
+        scopes: Optional[List[str]] = None,
+        timeout: Optional[float] = None,
+        token_kwargs: Optional[dict] = {},
+        app_kwargs: Optional[dict] = {},
+        token_manager_config: Optional[TokenManagerConfig] = TokenManagerConfig(
+            DEFAULT_EXPIRATION_REFRESH_RATIO,
+            DEFAULT_LOWER_REFRESH_BOUND_MILLIS,
+            DEFAULT_TOKEN_REQUEST_EXECUTION_TIMEOUT_IN_MS,
+            RetryPolicy(
+                DEFAULT_MAX_ATTEMPTS,
+                DEFAULT_DELAY_IN_MS
+                )
+            )) -> EntraIdCredentialsProvider:
+    """
+    Create a credential provider from a service principal.
+
+    :param client_credential: Service principal credentials.
+    :param client_id: Service principal client ID.
+    :param scopes: Service principal scopes. Fallback to default scopes if None.
+    :param timeout: Service principal timeout.
+    :param tenant_id: Service principal tenant ID.
+    :param token_kwargs: Optional token arguments to pass to service identity provider.
+    :param app_kwargs: Optional keyword arguments to pass to service principal application.
+    :param token_manager_config: Token manager specific configuration.
+    :return: EntraIdCredentialsProvider instance.
+    """
+    service_principal_config = ServicePrincipalIdentityProviderConfig(
+        client_credential=client_credential,
+        client_id=client_id,
+        scopes=scopes,
+        timeout=timeout,
+        tenant_id=tenant_id,
+        app_kwargs=app_kwargs,
+        token_kwargs=token_kwargs,
+    )
+
+    return EntraIdCredentialsProvider(service_principal_config, token_manager_config)

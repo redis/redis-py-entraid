@@ -1,4 +1,4 @@
 PyJWT~=2.9.0
 msal~=1.31.0
-redis @ git+https://github.com/redis/redis-py.git/@vv-tba-support
+redis==5.3.0b4
 requests~=2.32.3

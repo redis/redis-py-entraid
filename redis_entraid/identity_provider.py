@@ -1,5 +1,6 @@
+from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional, Union, Callable
+from typing import Optional, Union, Callable, Any, List
 
 import requests
 from msal import (
@@ -24,6 +25,26 @@ class ManagedIdentityIdType(Enum):
     RESOURCE_ID = "resource_id"
 
 
+@dataclass
+class ManagedIdentityProviderConfig:
+    identity_type: ManagedIdentityType
+    resource: str
+    id_type: Optional[ManagedIdentityIdType] = None
+    id_value: Optional[str] = ''
+    kwargs: Optional[dict] = field(default_factory=dict)
+
+
+@dataclass
+class ServicePrincipalIdentityProviderConfig:
+    client_credential: Any
+    client_id: str
+    scopes: Optional[List[str]] = None
+    timeout: Optional[float] = None
+    tenant_id: Optional[str] = None
+    token_kwargs: Optional[dict] = None
+    app_kwargs: Optional[dict] = field(default_factory=dict)
+
+
 class EntraIDIdentityProvider(IdentityProviderInterface):
     """
     EntraID Identity Provider implementation.
@@ -34,7 +55,7 @@ class EntraIDIdentityProvider(IdentityProviderInterface):
     def __init__(
             self,
             app: Union[ManagedIdentityClient, ConfidentialClientApplication],
-            scopes : list = [],
+            scopes : List = [],
             resource: str = '',
             **kwargs
     ):
@@ -75,70 +96,54 @@ class EntraIDIdentityProvider(IdentityProviderInterface):
             raise RequestTokenErr(e)
 
 
-def create_provider_from_managed_identity(
-        identity_type: ManagedIdentityType,
-        resource: str,
-        id_type: Optional[ManagedIdentityIdType] = None,
-        id_value: Optional[str] = '',
-        **kwargs
-) -> EntraIDIdentityProvider:
+def _create_provider_from_managed_identity(config: ManagedIdentityProviderConfig) -> EntraIDIdentityProvider:
     """
     Create an EntraID identity provider following Managed Identity auth flow.
 
-    :param identity_type: User Assigned or System Assigned.
-    :param resource: Resource for which token should be acquired.
-    :param id_type: Required for User Assigned identity type only.
-    :param id_value: Required for User Assigned identity type only.
-    :param kwargs: Additional arguments you may need during specify to request token.
+    :param config: Config for managed assigned identity provider
     See: :class:`ManagedIdentityClient` acquire_token_for_client method.
 
     :return: :class:`EntraIDIdentityProvider`
     """
-    if identity_type == ManagedIdentityType.USER_ASSIGNED:
-        if id_type is None or id_value == '':
+    if config.identity_type == ManagedIdentityType.USER_ASSIGNED:
+        if config.id_type is None or config.id_value == '':
             raise ValueError("Id_type and id_value are required for User Assigned identity auth")
 
         kwargs = {
-            id_type.value: id_value
+            config.id_type.value: config.id_value
         }
 
-        managed_identity = identity_type.value(**kwargs)
+        managed_identity = config.identity_type.value(**kwargs)
     else:
-        managed_identity = identity_type.value()
+        managed_identity = config.identity_type.value()
 
     app = ManagedIdentityClient(managed_identity, http_client=requests.Session())
-    return EntraIDIdentityProvider(app, [], resource, **kwargs)
+    return EntraIDIdentityProvider(app, [], config.resource, **config.kwargs)
 
 
-def create_provider_from_service_principal(
-        client_credential,
-        client_id: str,
-        scopes: list = [],
-        timeout: Optional[float] = None,
-        token_kwargs: dict = {},
-        **app_kwargs
-) -> EntraIDIdentityProvider:
+def _create_provider_from_service_principal(config: ServicePrincipalIdentityProviderConfig) -> EntraIDIdentityProvider:
     """
     Create an EntraID identity provider following Service Principal auth flow.
 
-    :param client_credential: Can be secret string, PEM certificate and more.
-    See: :class:`ConfidentialClientApplication`.
+    :param config: Config for service principal identity provider
 
-    :param client_id: Application (Client) ID.
-    :param scopes: If no scopes will be provided, default will be used.
-    :param timeout: Timeout in seconds.
-    :param token_kwargs: Additional arguments you may need during token request.
-    :param app_kwargs: Additional arguments you may need to configure an application.
     :return: :class:`EntraIDIdentityProvider`
+    See: :class:`ConfidentialClientApplication`.
     """
 
-    if len(scopes) == 0:
-        scopes.append("https://redis.azure.com/.default")
+    if config.scopes is None:
+        scopes = ["https://redis.azure.com/.default"]
+    else:
+        scopes = config.scopes
+
+    authority = f"https://login.microsoftonline.com/{config.tenant_id}" \
+        if config.tenant_id is not None else config.tenant_id
 
     app = ConfidentialClientApplication(
-        client_id=client_id,
-        client_credential=client_credential,
-        timeout=timeout,
-        **app_kwargs
+        client_id=config.client_id,
+        client_credential=config.client_credential,
+        timeout=config.timeout,
+        authority=authority,
+        **config.app_kwargs
     )
-    return EntraIDIdentityProvider(app, scopes, **token_kwargs)
+    return EntraIDIdentityProvider(app, scopes, **config.token_kwargs)

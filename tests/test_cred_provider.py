@@ -16,6 +16,18 @@ class TestEntraIdCredentialsProvider:
             {
                 "idp_kwargs": {"auth_type": AuthType.SERVICE_PRINCIPAL},
             },
+        ],
+        ids=["Service principal"],
+        indirect=True,
+    )
+    def test_get_credentials(self, credential_provider: EntraIdCredentialsProvider):
+        credentials = credential_provider.get_credentials()
+        assert len(credentials) == 2
+
+
+    @pytest.mark.parametrize(
+        "credential_provider",
+        [
             {
                 "idp_kwargs": {"auth_type": AuthType.MANAGED_IDENTITY},
             },
@@ -26,12 +38,14 @@ class TestEntraIdCredentialsProvider:
                 },
             }
         ],
-        ids=["Service principal", "Managed Identity (System-assigned)", "Managed Identity (User-assigned)"],
+        ids=["Managed Identity (System-assigned)", "Managed Identity (User-assigned)"],
         indirect=True,
     )
-    def test_get_credentials(self, credential_provider: EntraIdCredentialsProvider):
+    @pytest.mark.managed_identity
+    def test_get_credentials_managed_identity(self, credential_provider: EntraIdCredentialsProvider):
         credentials = credential_provider.get_credentials()
         assert len(credentials) == 2
+
 
     @pytest.mark.parametrize(
         "credential_provider",
@@ -40,6 +54,19 @@ class TestEntraIdCredentialsProvider:
                 "cred_provider_kwargs": {"block_for_initial": False},
                 "idp_kwargs": {"auth_type": AuthType.SERVICE_PRINCIPAL},
             },
+        ],
+        ids=["Service principal"],
+        indirect=True,
+    )
+    @pytest.mark.asyncio
+    async def test_get_credentials_async(self, credential_provider: EntraIdCredentialsProvider):
+        credentials = await credential_provider.get_credentials_async()
+        assert len(credentials) == 2
+
+
+    @pytest.mark.parametrize(
+        "credential_provider",
+        [
             {
                 "cred_provider_kwargs": {"block_for_initial": True},
                 "idp_kwargs": {"auth_type": AuthType.MANAGED_IDENTITY},
@@ -51,13 +78,15 @@ class TestEntraIdCredentialsProvider:
                 },
             }
         ],
-        ids=["Service principal", "Managed Identity (System-assigned)", "Managed Identity (User-assigned)"],
+        ids=["Managed Identity (System-assigned)", "Managed Identity (User-assigned)"],
         indirect=True,
     )
     @pytest.mark.asyncio
-    async def test_get_credentials_async(self, credential_provider: EntraIdCredentialsProvider):
+    @pytest.mark.managed_identity
+    async def test_get_credentials_async_managed_identity(self, credential_provider: EntraIdCredentialsProvider):
         credentials = await credential_provider.get_credentials_async()
         assert len(credentials) == 2
+
 
     @pytest.mark.parametrize(
         "credential_provider",
