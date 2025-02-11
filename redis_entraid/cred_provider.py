@@ -1,5 +1,6 @@
 from typing import Union, Tuple, Callable, Any, Awaitable, Optional, List
 
+from redis.auth.idp import IdentityProviderInterface
 from redis.credentials import StreamingCredentialProvider
 from redis.auth.token_manager import TokenManagerConfig, RetryPolicy, TokenManager, CredentialsListener
 
@@ -16,24 +17,20 @@ DEFAULT_DELAY_IN_MS = 3
 class EntraIdCredentialsProvider(StreamingCredentialProvider):
     def __init__(
             self,
-            idp_config: Union[ManagedIdentityProviderConfig, ServicePrincipalIdentityProviderConfig],
+            identity_provider: IdentityProviderInterface,
             token_manager_config: TokenManagerConfig,
             initial_delay_in_ms: float = 0,
             block_for_initial: bool = False,
     ):
         """
-        :param idp_config: Identity provider specific configuration.
+        :param identity_provider: Identity provider instance
         :param token_manager_config: Token manager specific configuration.
         :param initial_delay_in_ms: Initial delay before run background refresh (valid for async only)
         :param block_for_initial: Block execution until initial token will be acquired (valid for async only)
         """
-        if isinstance(idp_config, ManagedIdentityProviderConfig):
-            idp = _create_provider_from_managed_identity(idp_config)
-        else:
-            idp = _create_provider_from_service_principal(idp_config)
-
+        self._idp = identity_provider
         self._token_mgr = TokenManager(
-            idp,
+            self._idp,
             token_manager_config
         )
         self._listener = CredentialsListener()
@@ -117,8 +114,8 @@ def create_from_managed_identity(
         id_value=id_value,
         kwargs=kwargs
     )
-
-    return EntraIdCredentialsProvider(managed_identity_config, token_manager_config)
+    idp = _create_provider_from_managed_identity(managed_identity_config)
+    return EntraIdCredentialsProvider(idp, token_manager_config)
 
 
 def create_from_service_principal(
@@ -160,5 +157,5 @@ def create_from_service_principal(
         app_kwargs=app_kwargs,
         token_kwargs=token_kwargs,
     )
-
-    return EntraIdCredentialsProvider(service_principal_config, token_manager_config)
+    idp = _create_provider_from_service_principal(service_principal_config)
+    return EntraIdCredentialsProvider(idp, token_manager_config)
