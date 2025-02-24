@@ -163,7 +163,7 @@ def create_from_service_principal(
 
 
 def create_from_default_azure_credential(
-        scopes: Optional[tuple[str]] = None,
+        scopes: Optional[Tuple[str]] = None,
         tenant_id: Optional[str] = None,
         authority: Optional[str] = None,
         token_kwargs: Optional[dict] = {},
