@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional, Any, List
+from typing import Optional, Any, List, Tuple
 
 import requests
 from azure.identity import DefaultAzureCredential
@@ -48,7 +48,7 @@ class ServicePrincipalIdentityProviderConfig:
 
 @dataclass
 class DefaultAzureCredentialIdentityProviderConfig:
-    scopes: Optional[tuple[str]] = None
+    scopes: Optional[Tuple[str]] = None
     tenant_id: Optional[str] = None
     authority: Optional[str] = None
     token_kwargs: Optional[dict] = field(default_factory=dict)
