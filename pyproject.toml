@@ -15,6 +15,7 @@ dependencies = [
   "redis~=5.3.0b3",
   "PyJWT~=2.9.0",
   "msal~=1.31.0",
+  "azure-identity~=1.20.0"
 ]
 
 [tool.setuptools.packages.find]

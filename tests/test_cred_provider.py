@@ -46,6 +46,35 @@ class TestEntraIdCredentialsProvider:
         credentials = credential_provider.get_credentials()
         assert len(credentials) == 2
 
+    @pytest.mark.parametrize(
+        "credential_provider",
+        [
+            {
+                "idp_kwargs": {"auth_type": AuthType.DEFAULT_AZURE_CREDENTIAL},
+            },
+        ],
+        ids=["Default Azure Credentials (via EnvironmentCredential)"],
+        indirect=True,
+    )
+    def test_get_credentials_default_azure_credential_env(self, credential_provider: EntraIdCredentialsProvider):
+        credentials = credential_provider.get_credentials()
+        assert len(credentials) == 2
+
+    @pytest.mark.parametrize(
+        "credential_provider",
+        [
+            {
+                "idp_kwargs": {"auth_type": AuthType.DEFAULT_AZURE_CREDENTIAL},
+            },
+        ],
+        ids=["Default Azure Credentials (via ManagedIdentityCredential)"],
+        indirect=True,
+    )
+    @pytest.mark.managed_identity
+    def test_get_credentials_default_azure_credential_managed(self, credential_provider: EntraIdCredentialsProvider):
+        credentials = credential_provider.get_credentials()
+        assert len(credentials) == 2
+
 
     @pytest.mark.parametrize(
         "credential_provider",

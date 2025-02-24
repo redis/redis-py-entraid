@@ -1,8 +1,9 @@
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional, Union, Callable, Any, List
+from typing import Optional, Any, List
 
 import requests
+from azure.identity import DefaultAzureCredential
 from msal import (
     ConfidentialClientApplication,
     ManagedIdentityClient,
@@ -41,69 +42,120 @@ class ServicePrincipalIdentityProviderConfig:
     scopes: Optional[List[str]] = None
     timeout: Optional[float] = None
     tenant_id: Optional[str] = None
-    token_kwargs: Optional[dict] = None
+    token_kwargs: Optional[dict] = field(default_factory=dict)
     app_kwargs: Optional[dict] = field(default_factory=dict)
 
 
-class EntraIDIdentityProvider(IdentityProviderInterface):
-    """
-    EntraID Identity Provider implementation.
-    It's recommended to use an additional factory methods to simplify object instantiation.
+@dataclass
+class DefaultAzureCredentialIdentityProviderConfig:
+    scopes: Optional[tuple[str]] = None
+    tenant_id: Optional[str] = None
+    authority: Optional[str] = None
+    token_kwargs: Optional[dict] = field(default_factory=dict)
+    app_kwargs: Optional[dict] = field(default_factory=dict)
 
-    Methods: create_provider_from_managed_identity, create_provider_from_service_principal.
+
+class ManagedIdentityProvider(IdentityProviderInterface):
+    """
+    Identity Provider implementation for Azure Managed Identity auth type.
     """
     def __init__(
             self,
-            app: Union[ManagedIdentityClient, ConfidentialClientApplication],
-            scopes : List = [],
-            resource: str = '',
+            app: ManagedIdentityClient,
+            resource: str,
             **kwargs
     ):
+        """
+        :param kwargs: See: :class:`ManagedIdentityClient` for additional configuration.
+        """
         self._app = app
-        self._scopes = scopes
         self._resource = resource
         self._kwargs = kwargs
 
     def request_token(self, force_refresh=False) -> TokenInterface:
         """
-        Request token from identity provider.
-        Force refresh argument is optional and works only with Service Principal auth method.
-
-        :param force_refresh:
-        :return: TokenInterface
+        Request token from identity provider. Force refresh isn't supported for this provider type.
         """
-        if isinstance(self._app, ManagedIdentityClient):
-            return self._get_token(self._app.acquire_token_for_client, resource=self._resource)
-
-        if force_refresh:
-            self._app.remove_tokens_for_client()
-
-        return self._get_token(
-                self._app.acquire_token_for_client,
-                scopes=self._scopes,
-                **self._kwargs
-        )
-
-    def _get_token(self, callback: Callable, **kwargs) -> JWToken:
         try:
-            response = callback(**kwargs)
+            response = self._app.acquire_token_for_client(resource=self._resource, **self._kwargs)
 
             if "error" in response:
                 raise RequestTokenErr(response["error_description"])
-
-            return JWToken(callback(**kwargs)["access_token"])
         except Exception as e:
             raise RequestTokenErr(e)
 
+        return JWToken(response["access_token"])
 
-def _create_provider_from_managed_identity(config: ManagedIdentityProviderConfig) -> EntraIDIdentityProvider:
+
+class ServicePrincipalProvider(IdentityProviderInterface):
     """
-    Create an EntraID identity provider following Managed Identity auth flow.
+    Identity Provider implementation for Azure Service Principal auth type.
+    """
+    def __init__(
+            self,
+            app: ConfidentialClientApplication,
+            scopes: Optional[List[str]] = None,
+            **kwargs
+    ):
+        """
+        :param kwargs: See: :class:`ConfidentialClientApplication` for additional configuration.
+        """
+        self._app = app
+        self._scopes = scopes
+        self._kwargs = kwargs
+
+    def request_token(self, force_refresh=False) -> TokenInterface:
+        """
+        Request token from identity provider.
+        """
+        if force_refresh:
+            self._app.remove_tokens_for_client()
+
+        try:
+            response = self._app.acquire_token_for_client(scopes=self._scopes, **self._kwargs)
+
+            if "error" in response:
+                raise RequestTokenErr(response["error_description"])
+        except Exception as e:
+            raise RequestTokenErr(e)
+
+        return JWToken(response["access_token"])
+
+
+class DefaultAzureCredentialProvider(IdentityProviderInterface):
+    """
+    Identity Provider implementation for Default Azure Credential flow.
+    """
+
+    def __init__(
+            self,
+            app: DefaultAzureCredential,
+            scopes: Optional[List[str]] = None,
+            tenant_id: Optional[str] = None,
+            **kwargs
+    ):
+        self._app = app
+        self._scopes = scopes
+        self._tenant_id = tenant_id
+        self._kwargs = kwargs
+
+    def request_token(self, force_refresh=False) -> TokenInterface:
+        try:
+            response = self._app.get_token(*self._scopes, tenant_id=self._tenant_id, **self._kwargs)
+        except Exception as e:
+            raise RequestTokenErr(e)
+
+        return JWToken(response.token)
+
+
+def _create_provider_from_managed_identity(config: ManagedIdentityProviderConfig) -> ManagedIdentityProvider:
+    """
+    Create a Managed identity provider following Managed Identity auth flow.
 
     :param config: Config for managed assigned identity provider
     See: :class:`ManagedIdentityClient` acquire_token_for_client method.
 
-    :return: :class:`EntraIDIdentityProvider`
+    :return: :class:`ManagedIdentityProvider`
     """
     if config.identity_type == ManagedIdentityType.USER_ASSIGNED:
         if config.id_type is None or config.id_value == '':
@@ -118,16 +170,16 @@ def _create_provider_from_managed_identity(config: ManagedIdentityProviderConfig
         managed_identity = config.identity_type.value()
 
     app = ManagedIdentityClient(managed_identity, http_client=requests.Session())
-    return EntraIDIdentityProvider(app, [], config.resource, **config.kwargs)
+    return ManagedIdentityProvider(app, config.resource, **config.kwargs)
 
 
-def _create_provider_from_service_principal(config: ServicePrincipalIdentityProviderConfig) -> EntraIDIdentityProvider:
+def _create_provider_from_service_principal(config: ServicePrincipalIdentityProviderConfig) -> ServicePrincipalProvider:
     """
-    Create an EntraID identity provider following Service Principal auth flow.
+    Create a Service Principal identity provider following Service Principal auth flow.
 
     :param config: Config for service principal identity provider
 
-    :return: :class:`EntraIDIdentityProvider`
+    :return: :class:`ServicePrincipalProvider`
     See: :class:`ConfidentialClientApplication`.
     """
 
@@ -146,4 +198,33 @@ def _create_provider_from_service_principal(config: ServicePrincipalIdentityProv
         authority=authority,
         **config.app_kwargs
     )
-    return EntraIDIdentityProvider(app, scopes, **config.token_kwargs)
+    return ServicePrincipalProvider(app, scopes, **config.token_kwargs)
+
+
+def _create_provider_from_default_azure_credential(
+        config: Optional[DefaultAzureCredentialIdentityProviderConfig] = None
+) -> DefaultAzureCredentialProvider:
+    """
+    Create a Default Azure Credential identity provider following Default Azure Credential flow.
+
+    :param config: Config for default Azure Credential identity provider
+    :return: :class:`DefaultAzureCredentialProvider`
+    See: :class:`DefaultAzureCredential`.
+    """
+
+    default_scopes = ["https://redis.azure.com/.default"]
+
+    if config is None:
+        return DefaultAzureCredentialProvider(DefaultAzureCredential(), scopes=default_scopes)
+
+    if config.scopes is None:
+        scopes = default_scopes
+    else:
+        scopes = config.scopes
+
+    app = DefaultAzureCredential(
+        authority=config.authority,
+        **config.app_kwargs
+    )
+
+    return DefaultAzureCredentialProvider(app, scopes, config.tenant_id, **config.token_kwargs)
