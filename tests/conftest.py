@@ -95,7 +95,7 @@ def _get_service_principal_provider_config(request) -> ServicePrincipalIdentityP
 
 
 def _get_default_azure_credential_provider_config(request) -> DefaultAzureCredentialIdentityProviderConfig:
-    scopes = os.getenv("AZURE_REDIS_SCOPES", None)
+    scopes = os.getenv("AZURE_REDIS_SCOPES", ())
 
     if hasattr(request, "param"):
         kwargs = request.param.get("idp_kwargs", {})

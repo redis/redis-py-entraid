@@ -12,6 +12,7 @@ env:
   AZURE_CLIENT_SECRET: ${{ secrets.IDP_CLIENT_CREDENTIAL }}
   AZURE_CLIENT_ID: ${{ secrets.IDP_CLIENT_ID }}
   AZURE_TENANT_ID: ${{ secrets.IDP_TENANT_ID }}
+  AZURE_REDIS_SCOPES: ${{ secrets.IDP_SCOPES }}
 jobs:
   tests:
     strategy:
