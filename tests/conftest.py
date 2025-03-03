@@ -3,7 +3,6 @@ from enum import Enum
 from typing import Union
 
 import pytest
-from msal.managed_identity import ManagedIdentity
 from redis import CredentialProvider
 from redis.auth.token_manager import TokenManagerConfig, RetryPolicy
 
@@ -160,7 +159,7 @@ def get_credential_provider(request) -> CredentialProvider:
     if isinstance(idp_config, DefaultAzureCredentialIdentityProviderConfig):
         return create_from_default_azure_credential(
             idp_config.scopes,
-            idp_config.tenant_id,
+            idp_config.additional_tenant_id,
             idp_config.authority,
             idp_config.token_kwargs,
             idp_config.app_kwargs,

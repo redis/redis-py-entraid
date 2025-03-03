@@ -48,8 +48,8 @@ class ServicePrincipalIdentityProviderConfig:
 
 @dataclass
 class DefaultAzureCredentialIdentityProviderConfig:
-    scopes: Optional[Tuple[str]] = None
-    tenant_id: Optional[str] = None
+    scopes: Tuple[str]
+    additional_tenant_id: Optional[str] = None
     authority: Optional[str] = None
     token_kwargs: Optional[dict] = field(default_factory=dict)
     app_kwargs: Optional[dict] = field(default_factory=dict)
@@ -130,18 +130,18 @@ class DefaultAzureCredentialProvider(IdentityProviderInterface):
     def __init__(
             self,
             app: DefaultAzureCredential,
-            scopes: Optional[List[str]] = None,
-            tenant_id: Optional[str] = None,
+            scopes: Tuple[str],
+            additional_tenant_id: Optional[str] = None,
             **kwargs
     ):
         self._app = app
         self._scopes = scopes
-        self._tenant_id = tenant_id
+        self._additional_tenant_id = additional_tenant_id
         self._kwargs = kwargs
 
     def request_token(self, force_refresh=False) -> TokenInterface:
         try:
-            response = self._app.get_token(*self._scopes, tenant_id=self._tenant_id, **self._kwargs)
+            response = self._app.get_token(*self._scopes, tenant_id=self._additional_tenant_id, **self._kwargs)
         except Exception as e:
             raise RequestTokenErr(e)
 
@@ -202,7 +202,7 @@ def _create_provider_from_service_principal(config: ServicePrincipalIdentityProv
 
 
 def _create_provider_from_default_azure_credential(
-        config: Optional[DefaultAzureCredentialIdentityProviderConfig] = None
+        config: DefaultAzureCredentialIdentityProviderConfig
 ) -> DefaultAzureCredentialProvider:
     """
     Create a Default Azure Credential identity provider following Default Azure Credential flow.
@@ -212,19 +212,9 @@ def _create_provider_from_default_azure_credential(
     See: :class:`DefaultAzureCredential`.
     """
 
-    default_scopes = ["https://redis.azure.com/.default"]
-
-    if config is None:
-        return DefaultAzureCredentialProvider(DefaultAzureCredential(), scopes=default_scopes)
-
-    if config.scopes is None:
-        scopes = default_scopes
-    else:
-        scopes = config.scopes
-
     app = DefaultAzureCredential(
         authority=config.authority,
         **config.app_kwargs
     )
 
-    return DefaultAzureCredentialProvider(app, scopes, config.tenant_id, **config.token_kwargs)
+    return DefaultAzureCredentialProvider(app, config.scopes, config.additional_tenant_id, **config.token_kwargs)
