@@ -20,4 +20,4 @@ dependencies = [
 
 [tool.setuptools.packages.find]
 include = ["redis_entraid"]
-exclude = ["tests", ".github"]
+exclude = ["tests", "examples", ".github"]

@@ -164,7 +164,7 @@ def create_from_service_principal(
 
 def create_from_default_azure_credential(
         scopes: Tuple[str],
-        additional_tenant_id: Optional[str] = None,
+        tenant_id: Optional[str] = None,
         authority: Optional[str] = None,
         token_kwargs: Optional[dict] = {},
         app_kwargs: Optional[dict] = {},
@@ -183,7 +183,7 @@ def create_from_default_azure_credential(
     https://learn.microsoft.com/en-us/python/api/azure-identity/azure.identity.defaultazurecredential?view=azure-python
 
     :param scopes: Service principal scopes. Fallback to default scopes if None.
-    :param additional_tenant_id: Optional tenant to include in the token request.
+    :param tenant_id: Optional tenant to include in the token request.
     :param authority: Custom authority, by default used  'login.microsoftonline.com'
     :param token_kwargs: Optional token arguments applied when retrieving tokens.
     :param app_kwargs: Optional keyword arguments to pass when instantiating application.
@@ -192,7 +192,7 @@ def create_from_default_azure_credential(
     default_azure_credential_config = DefaultAzureCredentialIdentityProviderConfig(
         scopes=scopes,
         authority=authority,
-        additional_tenant_id=additional_tenant_id,
+        additional_tenant_id=tenant_id,
         token_kwargs=token_kwargs,
         app_kwargs=app_kwargs,
     )
