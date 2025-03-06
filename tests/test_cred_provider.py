@@ -145,7 +145,7 @@ class TestEntraIdCredentialsProvider:
         "credential_provider",
         [
             {
-                "cred_provider_kwargs": {"expiration_refresh_ratio": 0.00003},
+                "cred_provider_kwargs": {"expiration_refresh_ratio": 0.00004},
             }
         ],
         indirect=True,
