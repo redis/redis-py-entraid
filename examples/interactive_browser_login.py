@@ -6,13 +6,14 @@
 
 import os
 
+from redis import Redis
 from redis_entraid.cred_provider import create_from_default_azure_credential
 
 def main():
 
     # By default, interactive browser login is excluded so you need to enable it.
     credential_provider = create_from_default_azure_credential(
-        ("user.read",),
+        scopes=("user.read",),
         app_kwargs={
             "exclude_interactive_browser_credential": False,
             "interactive_browser_client_id": os.getenv("AZURE_CLIENT_ID"),
@@ -20,8 +21,10 @@ def main():
         }
     )
 
-    # Opens a browser tab. After you'll enter your username/password it would return you a credentials needed for auth.
-    print(credential_provider.get_credentials())
+    # Opens a browser tab. After you'll enter your username/password you'll be authenticated.
+    # When using Entra ID, Azure enforces TLS on your Redis connection.
+    client = Redis(host=HOST, port=PORT, ssl=True, ssl_cert_reqs=None, credential_provider=credential_provider)
+    print("The database size is: {}".format(client.dbsize()))
 
 
 if __name__ == "__main__":

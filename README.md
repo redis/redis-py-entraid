@@ -91,6 +91,9 @@ credential_provider = create_from_default_azure_credential(
 )
 ```
 
+More examples available in [examples](https://github.com/redis/redis-py-entraid/tree/vv-default-azure-credentials/examples)
+folder.
+
 ### Step 3 - Provide optional token renewal configuration
 
 The default configuration would be applied, but you're able to customise it.
