@@ -6,7 +6,8 @@ from redis.auth.token_manager import TokenManagerConfig, RetryPolicy, TokenManag
 
 from redis_entraid.identity_provider import ManagedIdentityType, ManagedIdentityIdType, \
     _create_provider_from_managed_identity, ManagedIdentityProviderConfig, ServicePrincipalIdentityProviderConfig, \
-    _create_provider_from_service_principal
+    _create_provider_from_service_principal, DefaultAzureCredentialIdentityProviderConfig, \
+    _create_provider_from_default_azure_credential
 
 DEFAULT_EXPIRATION_REFRESH_RATIO = 0.7
 DEFAULT_LOWER_REFRESH_BOUND_MILLIS = 0
@@ -158,4 +159,42 @@ def create_from_service_principal(
         token_kwargs=token_kwargs,
     )
     idp = _create_provider_from_service_principal(service_principal_config)
+    return EntraIdCredentialsProvider(idp, token_manager_config)
+
+
+def create_from_default_azure_credential(
+        scopes: Tuple[str],
+        tenant_id: Optional[str] = None,
+        authority: Optional[str] = None,
+        token_kwargs: Optional[dict] = {},
+        app_kwargs: Optional[dict] = {},
+        token_manager_config: Optional[TokenManagerConfig] = TokenManagerConfig(
+            DEFAULT_EXPIRATION_REFRESH_RATIO,
+            DEFAULT_LOWER_REFRESH_BOUND_MILLIS,
+            DEFAULT_TOKEN_REQUEST_EXECUTION_TIMEOUT_IN_MS,
+            RetryPolicy(
+                DEFAULT_MAX_ATTEMPTS,
+                DEFAULT_DELAY_IN_MS
+            )
+        )
+) -> EntraIdCredentialsProvider:
+    """
+    Create a credential provider from a Default Azure credential.
+    https://learn.microsoft.com/en-us/python/api/azure-identity/azure.identity.defaultazurecredential?view=azure-python
+
+    :param scopes: Service principal scopes. Fallback to default scopes if None.
+    :param tenant_id: Optional tenant to include in the token request.
+    :param authority: Custom authority, by default used  'login.microsoftonline.com'
+    :param token_kwargs: Optional token arguments applied when retrieving tokens.
+    :param app_kwargs: Optional keyword arguments to pass when instantiating application.
+    :param token_manager_config: Token manager specific configuration.
+    """
+    default_azure_credential_config = DefaultAzureCredentialIdentityProviderConfig(
+        scopes=scopes,
+        authority=authority,
+        additional_tenant_id=tenant_id,
+        token_kwargs=token_kwargs,
+        app_kwargs=app_kwargs,
+    )
+    idp = _create_provider_from_default_azure_credential(default_azure_credential_config)
     return EntraIdCredentialsProvider(idp, token_manager_config)

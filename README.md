@@ -50,6 +50,31 @@ from redis_entraid.cred_provider import *
 
 ### Step 2 - Create the credential provider via the factory method
 
+Following factory methods are offered depends on authentication type you need:
+
+`create_from_managed_identity` - Creates a credential provider based on a managed identity. 
+Managed identities allow Azure services to authenticate without needing explicit credentials, as they are automatically assigned by Azure.
+
+`create_from_service_principal` - Creates a credential provider using a service principal. 
+A service principal is typically used when you want to authenticate as an application, rather than as a user, with Azure Active Directory.
+
+`create_from_default_azure_credential` - Creates a credential provider from a Default Azure Credential. 
+This method allows automatic selection of the appropriate credential mechanism based on the environment 
+(e.g., environment variables, managed identities, service principal, interactive browser etc.).
+
+#### Examples ####
+
+**Managed Identity**
+
+```python
+credential_provider = create_from_managed_identity(
+    identity_type=ManagedIdentityType.SYSTEM_ASSIGNED,
+    resource="https://redis.azure.com/"
+)
+```
+
+**Service principal**
+
 ```python
 credential_provider = create_from_service_principal(
     CLIENT_ID, 
@@ -57,6 +82,17 @@ credential_provider = create_from_service_principal(
     TENANT_ID
 )
 ```
+
+**Default Azure Credential**
+
+```python
+credential_provider = create_from_default_azure_credential(
+    ("https://redis.azure.com/.default",),
+)
+```
+
+More examples available in [examples](https://github.com/redis/redis-py-entraid/tree/vv-default-azure-credentials/examples)
+folder.
 
 ### Step 3 - Provide optional token renewal configuration
 
