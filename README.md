@@ -1,4 +1,4 @@
-The `redis-entra-id` Python package helps simplifying the authentication with [Azure Managed Redis](https://azure.microsoft.com/en-us/products/managed-redis) and Azure Cache for Redis using Microsoft Entra ID (formerly Azure Active Directory). It enables seamless integration with Azure's Redis services by fetching authentication tokens and managing the token renewal in the background. This package builds on top of `redis-py` and provides a structured way to authenticate by using a:
+The `redis-entraid` Python package helps simplifying the authentication with [Azure Managed Redis](https://azure.microsoft.com/en-us/products/managed-redis) and Azure Cache for Redis using Microsoft Entra ID (formerly Azure Active Directory). It enables seamless integration with Azure's Redis services by fetching authentication tokens and managing the token renewal in the background. This package builds on top of `redis-py` and provides a structured way to authenticate by using a:
 
 * System-assigned managed identity
 * User-assigned managed identity
@@ -32,7 +32,7 @@ Further details are available in the [AMR](https://learn.microsoft.com/en-us/azu
 You need to install the `redis-py` Entra ID package via the following command:
 
 ```bash
-pip install redis-entra-id
+pip install redis-entraid
 ```
 
 The package depends on [redis-py](https://github.com/redis/redis-py).
