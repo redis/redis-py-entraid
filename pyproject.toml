@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "redis-entraid"
-version = "0.4.0b2"
+version = "0.4.0"
 authors = [
   { name="Redis Inc.", email="oss@redis.com" },
 ]
@@ -12,7 +12,7 @@ description = "Entra ID credentials provider implementation for Redis-py client"
 readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
-  "redis~=5.3.0b3",
+  "redis~=5.3.0",
   "PyJWT~=2.9.0",
   "msal~=1.31.0",
   "azure-identity~=1.20.0"
