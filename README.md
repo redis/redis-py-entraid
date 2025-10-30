@@ -1,3 +1,5 @@
+**Note:** redis-py-entraid 1.0.0 is the last version of redis-py that supports Python 3.9, as it has reached [end of life](https://devguide.python.org/versions/). redis-py-entraid 1.1.0 supports Python 3.9+.
+
 The `redis-entraid` Python package helps simplifying the authentication with [Azure Managed Redis](https://azure.microsoft.com/en-us/products/managed-redis) and Azure Cache for Redis using Microsoft Entra ID (formerly Azure Active Directory). It enables seamless integration with Azure's Redis services by fetching authentication tokens and managing the token renewal in the background. This package builds on top of `redis-py` and provides a structured way to authenticate by using a:
 
 * System-assigned managed identity
