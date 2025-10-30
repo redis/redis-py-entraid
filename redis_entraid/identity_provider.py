@@ -189,7 +189,7 @@ def _create_provider_from_service_principal(config: ServicePrincipalIdentityProv
         scopes = config.scopes
 
     authority = f"https://login.microsoftonline.com/{config.tenant_id}" \
-        if config.tenant_id is not None else config.tenant_id
+        if config.tenant_id is not None else "https://login.microsoftonline.com/common"
 
     app = ConfidentialClientApplication(
         client_id=config.client_id,
