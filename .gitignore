@@ -1,3 +1,6 @@
 .idea/
 redis_entraid/__pycache__
 tests/__pycache__
+redis_entraid.egg-info/
+test-results.xml
+uv.lock
