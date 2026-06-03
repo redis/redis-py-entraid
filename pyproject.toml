@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "redis-entraid"
-version = "1.2.0"
+version = "1.2.1"
 authors = [
   { name="Redis Inc.", email="oss@redis.com" },
 ]
@@ -13,7 +13,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
   "redis>=5.3.0",
-  "PyJWT~=2.12.0",
+  "PyJWT~=2.13.0",
   "msal~=1.33",
   "azure-identity~=1.24",
   "requests~=2.32"
