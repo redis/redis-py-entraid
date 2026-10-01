@@ -12,8 +12,7 @@ description = "Entra ID credentials provider implementation for Redis-py client"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-  "redis>=5.3.0",
-  "PyJWT~=2.15.0",
+  "redis[jwt]>=5.3.0",
   "msal~=1.33",
   "azure-identity~=1.24",
   "requests~=2.32"
